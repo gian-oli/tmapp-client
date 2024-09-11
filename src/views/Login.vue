@@ -19,16 +19,24 @@ const credentials = ref<{
     password: string,
 }>({ ...initialCredentials })
 
+const loadingState = ref(false)
+
 const userLogin = () => {
+    loadingState.value = true
     try {
         loginStore.setLogin({ ...credentials.value }).then((res) => {
             if (res?.token == undefined) {
+                loadingState.value = false;
                 return;
             }
             // Redirect to dashboard or home page
-            router.push({name: 'Dashboard'});
+            router.push({name: 'Dashboard'}).then(() => {
+
+                loadingState.value = false;
+            })
         })
     } catch (error) {
+        loadingState.value = false;
         // Handle error here
         console.error('Error logging in:', error);
     }
@@ -51,7 +59,10 @@ const validateAlphanumeric = (event: Event) => {
                     autocomplete="username" />
                 <Input v-model="credentials.password" type="password" id="password" autocomplete='current-password'
                     class="bg-white" label="Password" @input="validateAlphanumeric" />
-                <Button type="submit" class="w-full flex items-center justify-center" size="md">Login</Button>
+                <Button :disabled="loadingState" type="submit" class="w-full flex items-center justify-center disabled:bg-gray-400 hover-none" size="md">
+                <p v-if="!loadingState">Login</p>
+                <div v-else class="w-6 h-6 border-t-4 border-solid rounded-full border-t-primary animate-spin"></div>
+                </Button>
             </Form>
         </div>
     </div>

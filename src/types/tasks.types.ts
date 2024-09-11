@@ -1,3 +1,6 @@
+import { Priority } from "./priorities.types";
+import { User } from "./users.types";
+
 export interface TasksFormTypes {
   title: string;
   description: string;
@@ -17,7 +20,9 @@ export interface Task {
   finished_at: string | null;
   assigned_by: string;
   user_id: number | null;
+  user: User;
   priority_id: number;
+  priorities: Priority,
   column_id: number;
   comments: Comment[];
   created_at: string;
