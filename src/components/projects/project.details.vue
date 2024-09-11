@@ -35,6 +35,11 @@ provide('selectedProject', project)
                 <ul class="space-y-2 p-2">
                     <li>
                         <router-link active-class="bg-blue-200 font-bold" class="px-2 py-1 rounded hover:font-bold"
+                            :to="{ name: 'TaskManagement' }">Task
+                        </router-link>
+                    </li>
+                    <li>
+                        <router-link active-class="bg-blue-200 font-bold" class="px-2 py-1 rounded hover:font-bold"
                             :to="{ name: 'Swimlane' }">Swimlane
                         </router-link>
                     </li>

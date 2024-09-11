@@ -7,6 +7,7 @@ const Profile = () => import('@/views/Profile.vue');
 const Login = () => import('@/views/Login.vue');
 /**Views Children */
 /**Projects */
+const TaskManagement = () => import('@/views/projects/Task.vue');
 const TeamMember = () => import('@/views/projects/TeamMember.vue');
 const Swimlane = () => import('@/views/projects/Swimlane.vue');
 const Upload = () => import('@/views/projects/Upload.vue');
@@ -29,6 +30,11 @@ const routes = [
         name: 'Projects',
         component: Projects,
         children: [
+          {
+            path: 'task-management',
+            name: 'TaskManagement',
+            component: TaskManagement
+          },
           {
             path: 'team-member',
             name: 'TeamMember',
