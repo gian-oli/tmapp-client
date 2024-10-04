@@ -3,7 +3,7 @@ import { provide, ref } from 'vue';
 import Navbar from './Navbar.vue';
 import Sidebar from './Sidebar.vue';
 import SidebarItems from './SidebarItems.vue';
-import { BxSolidDashboard, PhBoldProjectorScreenChart, FlFilledTextBulletListSquare, CaUserProfile } from '@kalimahapps/vue-icons';
+import { BxSolidDashboard, PhBoldProjectorScreenChart, FlFilledTextBulletListSquare, CaUserProfile, BsBarChartSteps, LaUserSecretSolid } from '@kalimahapps/vue-icons';
 
 const expanded = ref<boolean>(false)
 
@@ -23,6 +23,10 @@ provide('expanded', expanded)
           <BxSolidDashboard class="mr-2" />
           <p class="inline-flex">Dashboard</p>
         </SidebarItems>
+        <SidebarItems route_name="GanttChart" class="flex items-center mb-2 p-2 rounded-md hover:bg-gray-300">
+          <BsBarChartSteps class="mr-2" />
+          <p class="inline-flex">Gantt Chart</p>
+        </SidebarItems>
         <SidebarItems route_name="Projects" class="flex items-center mb-2 p-2 rounded-md hover:bg-gray-300">
           <PhBoldProjectorScreenChart class="mr-2" />
           <p class="inline-flex">Projects</p>
@@ -35,10 +39,14 @@ provide('expanded', expanded)
           <CaUserProfile class="mr-2" />
           <p class="inline-flex">Profile</p>
         </SidebarItems>
+        <SidebarItems route_name="UserManagement" class="flex items-center mb-2 p-2 rounded-md hover:bg-gray-300">
+          <LaUserSecretSolid class="mr-2" />
+          <p class="inline-flex">User Management</p>
+        </SidebarItems>
       </Sidebar>
 
       <!-- Main content area -->
-      <div class="flex-1 p-4 bg-blue-100 text-sm min-w-[320px]">
+      <div class="flex-1 text-sm min-w-[320px]">
         <router-view />
       </div>
     </div>

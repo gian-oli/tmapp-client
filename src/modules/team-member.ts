@@ -11,7 +11,7 @@ export const useTeamMembersStore = defineStore({
   }),
   actions: {
     async storeTeamMember(data: {
-      user_id: number;
+      user_id: number | string;
       project_id: number;
     }): Promise<TeamMember | "No Id Validation Error"> {
       return apiCall(async () => {

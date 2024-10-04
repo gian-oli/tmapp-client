@@ -8,6 +8,7 @@ export const useProjectsStore = defineStore({
   id: "projects",
   state: () => ({
     projects: [] as Project[],
+    myProjects: [] as Project[],
     singleProject: {} as Project,
     stopRequests: false,
   }),
@@ -37,6 +38,14 @@ export const useProjectsStore = defineStore({
       });
     },
 
+    async loadMyProjects(id: number | string): Promise<Project[]> {
+      return apiCall(async () => {
+        const response = await axios.get<ApiResponse<Project[]>>(`my-projects/${id}`)
+        this.myProjects = response.data.data;
+        return response.data.data
+      })
+    },
+
     async setProjectStore(data: ProjectFormTypes): Promise<Project> {
       // Apply cancellation logic for POST request
       return apiCall(
@@ -51,7 +60,7 @@ export const useProjectsStore = defineStore({
           return response.data.data;
         },
         () => this.stopRequests,
-        1000 // Optional delay
+        2000 // Optional delay
       );
     },
 
@@ -109,5 +118,6 @@ export const useProjectsStore = defineStore({
   getters: {
     getProjects: (state) => state.projects,
     getSingleProject: (state) => state.singleProject,
+    getMyProjects: (state) => state.myProjects
   },
 });

@@ -12,7 +12,7 @@ const route = useRoute()
 
 </script>
 <template>
-    <router-link :to="{ name: route_name }" :class="`relative ${expanded ? 'py-2 pl-4': 'py-0 pl-0 '} flex ease-in-out my-1 font-medium rounded-md cursor-pointer text-xs transition-colors duration-200 group 
+    <router-link :to="{ name: route_name }" active-class="bg-blue-100" :class="`relative ${expanded ? 'py-2 pl-4': 'py-0 pl-0 '} flex ease-in-out my-1 font-medium rounded-md cursor-pointer text-xs transition-colors duration-200 group 
     ${route_name == route.name ?
             'text-black bg-gray-white shadow-md' :
             'text-gray-400 bg-gray-100'}`">

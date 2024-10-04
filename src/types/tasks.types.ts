@@ -6,10 +6,12 @@ export interface TasksFormTypes {
   description: string;
   due_date: string;
   assigned_by: string;
-  priority_id: number;
-  user_id: number | null;
-  status_id: number;
-  project_id: number | null;
+  priority_id: number | string;
+  user_id: number | string;
+  project_id: number | string;
+  swimlane_id: number | string | string[];
+  color_name: string ;
+  start_date: string ;
 }
 
 export interface Task {
@@ -21,6 +23,8 @@ export interface Task {
   assigned_by: string;
   user_id: number | null;
   user: User;
+  color_name: string | null;
+  start_date: string | null;
   priority_id: number;
   priorities: Priority,
   column_id: number;

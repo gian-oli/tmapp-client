@@ -11,8 +11,11 @@ export const useLoginStore = defineStore({
     async setLogin(data: LoginForm) {
         try {
           const response = await axios.post<ApiResponse<LoginResponseType>>("login", data);
-          sessionStorage.setItem("access_token", JSON.parse(JSON.stringify(response.data.data.token)));
-          return response.data.data;
+          console.log(response)
+          if(response.status === 200){
+            sessionStorage.setItem("access_token", JSON.parse(JSON.stringify(response.data.data.token)));
+            return response.data.data;
+          }
         } catch (error) {
           console.log(error);
         }

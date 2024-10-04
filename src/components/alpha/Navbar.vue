@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ChMenuHamburger, FaXmark, BsGearFill } from '@kalimahapps/vue-icons';
-import { inject, onMounted, ref, Ref } from 'vue';
+import { inject, onBeforeUnmount, onMounted, ref, Ref, watch } from 'vue';
 import { twMerge } from 'tailwind-merge';
 import SettingsModal from './SettingsModal.vue';
 
@@ -13,9 +13,15 @@ const isClicked = ref(false);
 const isHovered = ref(false);
 const isDialogVisible = ref(false);
 
+let ignoreFirstClick = false;
+
 function toggleClicked() {
   isClicked.value = !isClicked.value;
   isDialogVisible.value = isClicked.value;
+
+  setTimeout(() => {
+    ignoreFirstClick = false;
+  })
 }
 
 // Inject the `expanded` ref from the parent component
@@ -47,6 +53,35 @@ onMounted(() => {
     wrapLetters(animatedText.value);
   }
 });
+
+const handleClickOutside = (event: MouseEvent) => {
+  const modal = document.getElementById("settings_modal");
+  if (!modal?.contains(event.target as Node) && !ignoreFirstClick) {
+    isDialogVisible.value = false;
+    isClicked.value = false
+  } else {
+    console.log(modal?.contains(event.target as Node));
+  }
+};
+
+// Watch isVisible prop and add/remove event listener accordingly
+watch(
+  () => isDialogVisible.value,
+  (newValue) => {
+    if (newValue) {
+      ignoreFirstClick = true;
+      document.addEventListener('click', handleClickOutside);
+    } else {
+      document.removeEventListener('click', handleClickOutside);
+    }
+  }
+);
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
+
+
 </script>
 
 <template>
@@ -80,7 +115,7 @@ onMounted(() => {
         ]" />
       </button>
 
-      <SettingsModal v-if="isDialogVisible" :isVisible="isDialogVisible" @update:visible="isDialogVisible = $event" />
+      <SettingsModal id="settings_modal" v-if="isDialogVisible" :isVisible="isDialogVisible" @update:visible="isDialogVisible = $event, isClicked = $event" />
     </div>
   </div>
 </template>

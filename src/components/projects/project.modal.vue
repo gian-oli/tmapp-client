@@ -14,7 +14,10 @@ const user_injector = inject<Ref<User[]>>("users");
 const statuses_injector = inject<Ref<Statuses[]>>("statuses");
 
 const priorities = computed(() => priorities_injector?.value || []);
-const users = computed(() => user_injector?.value || []);
+const users = computed(() => user_injector?.value.map((user) => ({
+  label: user.username,
+  value: user.id,
+})));
 const statuses = computed(() => statuses_injector?.value || []);
 
 </script>
@@ -24,6 +27,8 @@ const statuses = computed(() => statuses_injector?.value || []);
   </div>
   <Form :submit="storeProject" class="space-y-4">
     <Input type="text" label="Project Name" id="project_name" v-model="post_project_form.project_name" required />
+    <Input id="project_type" v-model="post_project_form.project_type" label="Project Type"
+      :options="[{ value: 'Development', label: 'Development' }, { value: 'Testing', label: 'Testing' }]" required />
     <Input type="date" id="deadline" v-model="post_project_form.deadline" label="Deadline" required />
     <Input @focus="post_project_form.user_id = ''" type="text" :options="users" id="users"
       v-model="post_project_form.user_id" label="User" required />

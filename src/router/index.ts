@@ -4,7 +4,9 @@ const Dashboard = () => import('@/views/Dashboard.vue');
 const Projects = () => import('@/views/Projects.vue');
 const Tasks = () => import('@/views/Tasks.vue');
 const Profile = () => import('@/views/Profile.vue');
+const UserManagement = () => import('@/views/UserManagement.vue');
 const Login = () => import('@/views/Login.vue');
+const GanttChart = () => import('@/views/GanttChart.vue');
 /**Views Children */
 /**Projects */
 const TaskManagement = () => import('@/views/projects/Task.vue');
@@ -24,6 +26,11 @@ const routes = [
         path: '',
         name: 'Dashboard',
         component: Dashboard
+      },
+      {
+        path: 'gantt-chart',
+        name: 'GanttChart',
+        component: GanttChart
       },
       {
         path: 'projects',
@@ -62,13 +69,18 @@ const routes = [
         name: 'Profile',
         component: Profile
       },
+      {
+        path: 'user-management',
+        name: 'UserManagement',
+        component: UserManagement
+      },
     ]
   },
   {
     path: '/login',
     name: 'Login',
     component: Login
-  }
+  },
 ];
 
 const router = createRouter({

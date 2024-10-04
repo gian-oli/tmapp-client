@@ -35,8 +35,8 @@ onUnmounted(() => {
 
 <template>
     <Teleport to="#modal">
-        <div v-if="props.visible" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div class="bg-white px-4 pb-4 rounded shadow-lg z-10 max-w-96">
+        <div v-if="props.visible" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-30">
+            <div class="bg-white px-4 pb-4 rounded shadow-lg z-10 max-w-96 border border-blue-600">
                 <Button @click="close" class="absolute top-1 right-2 px-2 py-1 mt-1 text-white bg-red-600 rounded"
                     size="md">
                     <ClWindowClose />

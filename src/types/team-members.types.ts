@@ -1,8 +1,13 @@
+import { User } from "./users.types";
+
 export interface TeamMember {
-    team_member_id: number,
-    username: string,
-    email: string,
-    role: string
+    id: number;
+    user_id: number;
+    project_id: number;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+    user: User;
 }
 
 export interface TeamMemberStoreTypes {

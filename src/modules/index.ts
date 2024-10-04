@@ -1,3 +1,6 @@
+import { useRoleStore } from './roles';
+import { useGanttChartStore } from './ganttchart';
+import { useSwimlaneStore } from './swimlane';
 import { useLoadingStore } from './loading';
 import { useLoginStore } from './login';
 import { usePrioritiesStore } from "./priorities";
@@ -15,5 +18,8 @@ export {
   useTasksStore,
   useUsersStore,
   useLoginStore,
-  useLoadingStore
+  useLoadingStore,
+  useSwimlaneStore,
+  useGanttChartStore,
+  useRoleStore
 };

@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { Profile } from '@/types';
 import { CaUserAvatarFilledAlt } from '@kalimahapps/vue-icons';
 import { inject, Ref } from 'vue';
 // Inject the `expanded` ref from the parent
 const expanded = inject('expanded') as Ref<boolean>;
+const profile = inject('profile') as Ref<Profile>;
 </script>
 <template>
     <aside class="transition-all duration-300">
@@ -10,12 +12,13 @@ const expanded = inject('expanded') as Ref<boolean>;
             <ul class="flex-1 py-2">
                 <slot></slot>
             </ul>
-            <div :class="`border-t flex flex-col items-center transition-all duration-300  w-full text-center py-5 ${expanded ? '' : 'text-white'} `">
+            <div
+                :class="`border-t flex flex-col items-center transition-all duration-300  w-full text-center py-5 ${expanded ? '' : 'text-white'} `">
                 <i :class="``">
-                    <CaUserAvatarFilledAlt class="text-2xl"/>
+                    <CaUserAvatarFilledAlt class="text-2xl" />
                 </i>
-                <p :class="`text-sm break-words transition-all duration-300` ">John Doe</p>
-                <p :class="`text-xs break-words text-gray-600 transition-all duration-300 ` ">john.doe@email.com</p>
+                <p :class="`text-sm break-words transition-all duration-300 capitalize ${expanded ? '' : 'text-[0px]'}`">{{ profile.username }}</p>
+                <p :class="`text-xs break-words text-gray-600 transition-all duration-300 ${expanded ? '' : 'text-[0px]'} `">{{ profile.email }}</p>
             </div>
         </nav>
     </aside>

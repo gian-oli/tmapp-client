@@ -8,7 +8,7 @@ export interface LoginResponseType {
 }
 
 export interface Profile {
-  id: number;
+  id: number | string;
   username: string;
   email: string;
   role_id: number;
