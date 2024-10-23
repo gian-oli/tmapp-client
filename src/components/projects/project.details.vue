@@ -2,7 +2,7 @@
 import { computed, provide, ref } from 'vue';
 import { useProjectsStore } from '@/modules';
 import { AkCircleChevronDown, AkCircleChevronUp, AnOutlinedEdit, CaTaskRemove } from '@kalimahapps/vue-icons';
-import { format } from 'date-fns';
+// import { format } from 'date-fns';
 import { Button } from '../utilities';
 
 const projectStore = useProjectsStore()
@@ -117,10 +117,10 @@ provide('selectedProject', project)
 
                                         <span class="flex justify-between items-center">
                                             <p>{{ task.user_id ? task.user.username : 'No member assigned' }}</p>
-                                            <p class="flex  items-center gap-1">
+                                            <!-- <p class="flex  items-center gap-1">
                                             <div
                                                 :class="`w-3 h-3 rounded-full ${format(task.due_date, 'yyyy-MM-dd') <= format(new Date(), 'yyyy-MM-dd') ? 'border-2 border-red-200 bg-red-600 animate-pulse' : 'border-green-200 bg-green-600'} inline-flex`">
-                                            </div>{{ task.due_date }}</p>
+                                            </div>{{ task.due_date }}</p> -->
                                         </span>
 
                                     </li>

@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import ProjectList from "@/components/projects/project.list.vue";
-import { TaskColumn } from "@/components/tasks";
 import Button from "@/components/utilities/Button.vue";
 import { useProjectsStore, useTasksStore } from "@/modules";
-import { Column, Profile, Project, Task } from "@/types";
+import {  Profile, Project } from "@/types";
 import { AkCircleChevronUp, AkCircleChevronDown, AkCircleChevronLeftFill, AkCircleChevronRightFill, BsEyeFill } from "@kalimahapps/vue-icons";
-import { differenceInSeconds, format } from "date-fns";
+import { differenceInSeconds } from "date-fns";
 import { computed, inject, onMounted, provide, ref, Ref, watch } from "vue";
 
 const projectStore = useProjectsStore()
@@ -173,10 +172,10 @@ const formatTimeSpent = (start_date: string, finished_at: string) => {
                                 <span class="flex justify-between items-center">
                                     <p class="capitalize">{{ task.user_id ? task.user.username : 'No member assigned' }}
                                     </p>
-                                    <p class="flex  items-center gap-1">
+                                    <!-- <p class="flex  items-center gap-1">
                                     <div
                                         :class="`w-3 h-3 rounded-full ${format(task.due_date, 'yyyy-MM-dd') <= format(new Date(), 'yyyy-MM-dd') ? 'border-2 border-red-200 bg-red-600 animate-pulse' : 'border-green-200 bg-green-600'} inline-flex`">
-                                    </div>{{ format(task.due_date, 'yyyy-MM-dd') }}</p>
+                                    </div>{{ format(task.due_date, 'yyyy-MM-dd') }}</p> -->
                                 </span>
                                 <span class="flex justify-between items-center">
                                     <p>Start:</p>
@@ -280,9 +279,9 @@ const formatTimeSpent = (start_date: string, finished_at: string) => {
                                                     {{ task.user_id ? task.user.username : 'No member assigned' }}
                                                 </p>
                                                 <div class="flex  items-center gap-1">
-                                                    <div
+                                                    <!-- <div
                                                         :class="`w-3 h-3 rounded-full ${format(task.due_date, 'yyyy-MM-dd') <= format(new Date(), 'yyyy-MM-dd') ? 'border-2 border-red-200 bg-red-600 animate-pulse' : 'border-green-200 bg-green-600'} inline-flex`">
-                                                    </div>{{ format(task.due_date, 'yyyy-MM-dd') }}
+                                                    </div>{{ format(task.due_date, 'yyyy-MM-dd') }} -->
                                                 </div>
                                             </span>
                                             <span class="flex justify-between items-center">

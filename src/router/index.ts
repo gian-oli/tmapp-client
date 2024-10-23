@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 /**Views */
 const Dashboard = () => import('@/views/Dashboard.vue');
 const Projects = () => import('@/views/Projects.vue');
@@ -7,6 +7,7 @@ const Profile = () => import('@/views/Profile.vue');
 const UserManagement = () => import('@/views/UserManagement.vue');
 const Login = () => import('@/views/Login.vue');
 const GanttChart = () => import('@/views/GanttChart.vue');
+const GanttChart2 = () => import('@/views/GanttChart2.vue');
 /**Views Children */
 /**Projects */
 const TaskManagement = () => import('@/views/projects/Task.vue');
@@ -31,6 +32,11 @@ const routes = [
         path: 'gantt-chart',
         name: 'GanttChart',
         component: GanttChart
+      },
+      {
+        path: 'gantt-chart-2',
+        name: 'GanttChart2',
+        component: GanttChart2
       },
       {
         path: 'projects',
@@ -84,7 +90,8 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  // history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory() ,
   routes,
 });
 

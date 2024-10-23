@@ -14,8 +14,8 @@ const userStore = useUsersStore()
 const router = useRouter() // Assuming you have a router setup
 
 const initialCredentials = {
-    username: 'gian',
-    password: '12345678',
+    username: '',
+    password: '',
 }
 const credentials = ref<{
     username: string,

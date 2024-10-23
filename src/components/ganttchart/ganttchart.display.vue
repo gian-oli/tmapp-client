@@ -1,25 +1,27 @@
 <script setup lang="ts">
-import { GanttChart, ProjectFormTypes, Schedule } from '@/types';
-import { addDays, addMonths, compareDesc, differenceInMonths, endOfMonth, format, startOfMonth } from 'date-fns';
+import { GanttChart, ProjectFormTypes } from '@/types';
+import { addDays, addMonths, differenceInMonths, endOfMonth, format, startOfMonth } from 'date-fns';
 import { computed, inject, provide, ref, Ref } from 'vue';
 import { Button } from '../utilities';
-import { FaRoute, FlNoteEdit, MdEventBusy, MdHolidayVillage, MdSick, PhKanban } from '@kalimahapps/vue-icons';
-import { ActualDates, PlanDates } from '@/types/schedule.types';
+import { FaRoute, PhKanban } from '@kalimahapps/vue-icons';
+import { ActualDates } from '@/types/schedule.types';
 import Modal from '../utilities/Modal.vue';
 import GanttchartNote from './ganttchart.note.vue';
-import { useProjectsStore } from '@/modules';
 import { ProjectModal } from '../projects';
-import * as XLSX from 'xlsx';
+import { useDebounceFn } from '@vueuse/core'
+// import { useGanttChartStore } from '@/modules';
+
+// const ganttChartStore = useGanttChartStore()
 
 const props = defineProps<{
     submitPlanDate: (form: { date: string, time_spent: number, schedule_id: number }) => void,
     destroyPlanDate: (id: number) => void,
     submitActualDate: (form: { date: string, time_spent: number, schedule_id: number }) => void,
     destroyActualDate: (id: number) => void,
-    storeProjects: (payload: ProjectFormTypes) => void
+    storeProjects: (payload: ProjectFormTypes) => void,
+    changeStatus: (id: number, status: string) => void,
 }>()
 
-const projectStore = useProjectsStore()
 const initialProjectFormState: ProjectFormTypes = {
     user_id: '',
     project_name: '',
@@ -108,36 +110,36 @@ const getDaysBetween = (
     return daysArray;
 };
 
-const updatePlan = (date: string, schedule: Schedule) => {
-    const plan_date_exists = schedule.plan_dates.find((plan) => format(plan.date, 'yyyy-MM-dd') == date)
-    if (plan_date_exists) {
-        props.destroyPlanDate(plan_date_exists.id)
-    } else {
-        props.submitPlanDate({
-            date,
-            time_spent: 8.75,
-            schedule_id: schedule.id
-        })
-    }
-}
+// const updatePlan = (date: string, schedule: Schedule) => {
+//     const plan_date_exists = schedule.plan_dates.find((plan) => format(plan.date, 'yyyy-MM-dd') == date)
+//     if (plan_date_exists) {
+//         props.destroyPlanDate(plan_date_exists.id)
+//     } else {
+//         props.submitPlanDate({
+//             date,
+//             time_spent: 8.75,
+//             schedule_id: schedule.id
+//         })
+//     }
+// }
 
-const updateActual = (date: string, schedule: Schedule) => {
-    const actual_date_exists = schedule.actual_dates.find((actual) => format(actual.date, 'yyyy-MM-dd') == date)
-    if (actual_date_exists) {
-        props.destroyActualDate(actual_date_exists.id)
-    } else {
-        props.submitActualDate({
-            date,
-            time_spent: 8.75,
-            schedule_id: schedule.id
-        })
-    }
-}
+// const updateActual = (date: string, schedule: Schedule) => {
+//     const actual_date_exists = schedule.actual_dates.find((actual) => format(actual.date, 'yyyy-MM-dd') == date)
+//     if (actual_date_exists) {
+//         props.destroyActualDate(actual_date_exists.id)
+//     } else {
+//         props.submitActualDate({
+//             date,
+//             time_spent: 8.75,
+//             schedule_id: schedule.id
+//         })
+//     }
+// }
 
-const dateDesc = (planDates: PlanDates[]) => {
-    return planDates.sort((a, b) => compareDesc(new Date(a.date), new
-        Date(b.date)))
-}
+// const dateDesc = (planDates: PlanDates[]) => {
+//     return planDates.sort((a, b) => compareDesc(new Date(a.date), new
+//         Date(b.date)))
+// }
 
 /**Storing of new Projects */
 const storeProject = () => {
@@ -149,12 +151,12 @@ const storeProject = () => {
     showProjectStoreModal.value = false
 }
 
-const showNoteModal = (date: string, schedule: Schedule) => {
-    const day = schedule.actual_dates.find((actual) => format(actual.date, 'yyyy-MM-dd') == date)
-    if (!day) return alert('Actual date not found')
-    noteActualDay.value = day
-    noteModal.value = true
-}
+// const showNoteModal = (date: string, schedule: Schedule) => {
+//     const day = schedule.actual_dates.find((actual) => format(actual.date, 'yyyy-MM-dd') == date)
+//     if (!day) return alert('Actual date not found')
+//     noteActualDay.value = day
+//     noteModal.value = true
+// }
 
 const openProjectModal = (id: number, name: string) => {
     showProjectStoreModal.value = true
@@ -163,13 +165,19 @@ const openProjectModal = (id: number, name: string) => {
     post_project_form.value.project_name = `${ganttChart.value.name} - ${schedule_name.value}`
 }
 
+const handleStatusChange = useDebounceFn((id: number, status: string) => {
+    props.changeStatus(id, status)
+}, 1000);
+
 
 provide('note', noteActualDay)
 
+//step_btn_rfnXe7dwsvw9SCf
 </script>
 <template>
-    <div class=" bg-blue-50 w-[99vw] h-full overflow-x-auto" v-if="ganttChart">
-        <table id="ganttChart" class="bg-white ">
+    <div class=" bg-blue-50 w-[99vw] overflow-x-auto flex h-max" v-if="ganttChart">
+
+        <table id="ganttChart" class="bg-white sticky left-0 z-20">
             <thead>
                 <tr class="">
                     <th colspan="8" class="p-2 text-base border border-black bg-white">{{ ganttChart.name }}</th>
@@ -190,42 +198,6 @@ provide('note', noteActualDay)
                                 </div>
                             </div>
                         </div>
-                        <div v-else-if="field.key == 'schedule'">
-                            <div class="flex h-full" v-if="ganttChart.schedules">
-                                <div>
-                                    <div class="">
-                                        <div class="flex w-full">
-                                            <div class="w-full"
-                                                v-for="dates in getMonthsBetween(ganttChart.date_from, ganttChart.date_to)"
-                                                :key="dates">
-                                                <p class="border border-black bg-cyan-100 w-full ">
-                                                    {{ format(dates, 'LLLL') }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="w-full flex">
-                                            <span
-                                                :class="`min-w-8 text-center border border-dashed border-black text-[8px] ${name.slice(0, 3) == 'Sat' || name.slice(0, 3) == 'Sun' ? 'bg-orange-300' : ''}`"
-                                                v-for="{ day, name } in getDaysBetween(ganttChart.date_from, ganttChart.date_to)"
-                                                :key="day">
-                                                <p>{{ day }}</p>
-                                            </span>
-                                        </div>
-                                        <div class="w-full flex">
-                                            <span
-                                                :class="`w-8 text-center border border-dashed border-black text-[8px] ${name.slice(0, 3) == 'Sat' || name.slice(0, 3) == 'Sun' ? 'bg-orange-300' : ''}`"
-                                                v-for="{ day, name } in getDaysBetween(ganttChart.date_from, ganttChart.date_to)"
-                                                :key="day">
-                                                <p>{{ name.slice(0, 3) }}</p>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <p v-else>
                             {{ field.label }}
                         </p>
@@ -233,16 +205,19 @@ provide('note', noteActualDay)
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="schedule in ganttChart.schedules" :key="schedule.id">
-                    <td :class="`text-center border sticky border-black ${field.key == 'users' ? 'bg-blue-200 ' : field.key == 'id' ? 'bg-blue-200 px-5' : ''}`"
+                <tr v-for="schedule in ganttChart.schedules" :key="schedule.id"
+                    :class="`${schedule.status == 'Ongoing' ? 'bg-yellow-100' : schedule.status == 'On-Schedule' ? 'bg-green-100' : schedule.status == 'Delayed' ? 'bg-red-100' : ''} `">
+                    <td :class="`text-center border sticky border-black ${field.key == 'users' ? 'bg-blue-200 ' : field.key == 'id' ? 'bg-blue-200 px-5' : ''} `"
                         v-for="(field, i) in fields" :key="i">
                         <div v-if="field.key == 'users'" class="w-full  p-1">
                             <span v-for="user in schedule[field.key]" class="flex gap-1 justify-center">
                                 <p class="text-center">{{ user.username }}</p>
                             </span>
                         </div>
-                        <div v-else-if="field.key == 'percent_completed'" class="sticky left-0">
-                            {{ schedule[field.key] ? schedule[field.key] : '-' }}
+                        <div v-else-if="field.key == 'percent_completed'" class="p-2">
+                            <!-- {{ schedule[field.key] ? schedule[field.key] : '-' }} -->
+                            <input type="number" class="text-center bg-inherit w-20 py-3"
+                                v-model="schedule.percent_completed" placeholder="Enter %" />
                         </div>
                         <div v-else-if="field.key == 'duration'">
                             <div class="border-b p-1 bg-blue-200 min-w-16">
@@ -261,70 +236,35 @@ provide('note', noteActualDay)
                             </div>
                         </div>
                         <div v-else-if="field.key == 'date'" class="flex">
-                            <div class="border-r border-black">
-                                <input readonly
+                            <div class="border-r border-black flex flex-col">
+                                <!-- <input readonly
                                     :value="schedule.plan_dates.length > 0 ? format(dateDesc(schedule.plan_dates)[dateDesc(schedule.plan_dates).length - 1].date, 'yyyy-MM-dd') : null"
                                     type="date" class="border-b p-1 bg-blue-200 min-w-16 text-center font-medium" />
                                 <input readonly
                                     :value="schedule.actual_dates.length > 0 ? format(dateDesc(schedule.actual_dates)[dateDesc(schedule.actual_dates).length - 1].date, 'yyyy-MM-dd') : null"
-                                    type="date" class="p-1 text-center font-medium" />
+                                    type="date" class="p-1 text-center font-medium" /> -->
                             </div>
-                            <div class="">
-                                <input readonly
+                            <div class="flex flex-col">
+                                <!-- <input readonly
                                     :value="schedule.plan_dates.length > 0 ? format(dateDesc(schedule.plan_dates)[0].date, 'yyyy-MM-dd') : null"
                                     type="date" class="border-b p-1 bg-blue-200 min-w-16 text-center font-medium" />
                                 <input readonly
                                     :value="schedule.actual_dates.length > 0 ? format(dateDesc(schedule.actual_dates)[0].date, 'yyyy-MM-dd') : null"
-                                    type="date" class="p-1 text-center font-medium" />
+                                    type="date" class="p-1 text-center font-medium" /> -->
                             </div>
                         </div>
-                        <div v-else-if="field.key == 'schedule'">
-                            <div class="flex h-full" v-if="ganttChart.schedules">
-                                <div>
-                                    <div class="w-full flex">
-                                        <span @click="updatePlan(date, schedule)"
-                                            :class="`w-8 h-7 text-center group relative border border-dashed border-black flex items-center justify-center hover:bg-gray-400 cursor-pointer ${name.slice(0, 3) == 'Sat' || name.slice(0, 3) == 'Sun' ? 'bg-orange-300' : ''}`"
-                                            v-for="{ day, name, date } in getDaysBetween(ganttChart.date_from, ganttChart.date_to)"
-                                            :key="day">
-                                            <div v-if="schedule.plan_dates.find((actual) => format(actual.date, 'yyyy-MM-dd') == date)"
-                                                class="p-1 border border-black"></div>
-                                        </span>
-                                    </div>
-                                    <div class="w-full flex">
-                                        <span
-                                            :class="`w-8 h-7 text-center group relative border border-dashed border-black flex items-center justify-center hover:bg-gray-400 cursor-pointer ${name.slice(0, 3) == 'Sat' || name.slice(0, 3) == 'Sun' ? 'bg-orange-300' : ''}`"
-                                            v-for="{ day, name, date } in getDaysBetween(ganttChart.date_from, ganttChart.date_to)"
-                                            :key="day">
-                                            <div @click="updateActual(date, schedule)"
-                                                v-if="schedule.actual_dates.find((actual) => format(actual.date, 'yyyy-MM-dd') == date)"
-                                                class="h-full w-full flex items-center justify-center">
-                                                <div class="p-1 bg-black"></div>
-                                            </div>
-                                            <div @click="updateActual(date, schedule)" v-else class="h-full w-full">
-                                            </div>
-                                            <div
-                                                class="absolute group/edit flex gap-2 z-50 bottom-6 w-max bg-white p-2 rounded-lg shadow-lg border border-blue-300 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-300">
-                                                <Button @click="showNoteModal(date, schedule)"
-                                                    class="bg-purple-600 hover:bg-purple-300 active:bg-purple-700">
-                                                    <FlNoteEdit class="text-white" />
-                                                </Button>
-                                                <Button @click="showNoteModal(date, schedule)"
-                                                    class="bg-green-600 hover:bg-green-300 active:bg-green-700">
-                                                    <MdHolidayVillage class="text-white" />
-                                                </Button>
-                                                <Button @click="showNoteModal(date, schedule)"
-                                                    class="bg-red-600 hover:bg-red-300 active:bg-red-700">
-                                                    <MdSick class="text-white" />
-                                                </Button>
-                                                <Button @click="showNoteModal(date, schedule)"
-                                                    class="bg-yellow-600 hover:bg-yellow-300 active:bg-yellow-700">
-                                                    <MdEventBusy class="text-white" />
-                                                </Button>
-                                            </div>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
+                        <div v-else-if="field.key == 'status'">
+                            <select v-model="schedule.status" @change="handleStatusChange(schedule.id, schedule.status)"
+                                class="bg-inherit text-center">
+                                <option v-for="(data, i) in [
+                                    { value: 'Pending', label: 'Pending' },
+                                    { value: 'Ongoing', label: 'Ongoing' },
+                                    { value: 'On-Schedule', label: 'On-Schedule' },
+                                    { value: 'Delayed', label: 'Delayed' }
+                                ]" :key="i" :value="data.value">
+                                    {{ data.label }}
+                                </option>
+                            </select>
                         </div>
                         <p v-else class="relative">
                             <Button @click="openProjectModal(schedule.id, schedule.name)"
@@ -342,6 +282,104 @@ provide('note', noteActualDay)
                         </p>
                     </td>
                 </tr>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th class="p-2 text-base border border-black bg-white">
+                        Date Range
+                    </th>
+                </tr>
+                <tr>
+                    <th>
+                        <div class="flex h-full" v-if="ganttChart.schedules">
+                            <div class="">
+                                <div class="flex w-full">
+                                    <div class="w-full"
+                                        v-for="dates in getMonthsBetween(ganttChart.date_from, ganttChart.date_to)"
+                                        :key="dates">
+                                        <p class="border border-black bg-cyan-100 w-full ">
+                                            <!-- {{ format(dates, 'LLLL') }} -->
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="w-full flex">
+                                    <span
+                                        :class="`min-w-8 text-center border border-dashed border-black text-[8px] ${name.slice(0, 3) == 'Sat' || name.slice(0, 3) == 'Sun' ? 'bg-orange-300' : ''}`"
+                                        v-for="{ day, name } in getDaysBetween(ganttChart.date_from, ganttChart.date_to)"
+                                        :key="day">
+                                        <p>{{ day }}</p>
+                                    </span>
+                                </div>
+                                <div class="w-full flex">
+                                    <span
+                                        :class="`w-8 text-center border border-dashed border-black text-[8px] ${name.slice(0, 3) == 'Sat' || name.slice(0, 3) == 'Sun' ? 'bg-orange-300' : ''}`"
+                                        v-for="{ day, name } in getDaysBetween(ganttChart.date_from, ganttChart.date_to)"
+                                        :key="day">
+                                        <p>{{ name.slice(0, 3) }}</p>
+                                    </span>
+                                </div>
+                            </div>
+                            <div>
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="schedule in ganttChart.schedules" :key="schedule.id"
+                    :class="`${schedule.status == 'Ongoing' ? 'bg-yellow-100' : schedule.status == 'On-Schedule' ? 'bg-green-100' : schedule.status == 'Delayed' ? 'bg-red-100' : ''} `">
+                    <td>
+                        <div class="flex h-full" v-if="ganttChart.schedules">
+                            <div>
+                                <div class="w-full flex">
+                                    <!-- <span @click="updatePlan(date, schedule)"
+                                        :class="`w-8 h-7 text-center group relative border border-dashed border-black flex items-center justify-center hover:bg-gray-400 cursor-pointer ${name.slice(0, 3) == 'Sat' || name.slice(0, 3) == 'Sun' ? 'bg-orange-300' : ''}`"
+                                        v-for="{ day, name, date } in getDaysBetween(ganttChart.date_from, ganttChart.date_to)"
+                                        :key="day">
+                                        <div v-if="schedule.plan_dates.find((actual) => format(actual.date, 'yyyy-MM-dd') == date)"
+                                            class="p-1 border border-black"></div>
+                                    </span> -->
+                                </div>
+                                <div class="w-full flex">
+                                    <span
+                                        :class="`w-8 h-7 text-center group relative border border-dashed border-black flex items-center justify-center hover:bg-gray-400 cursor-pointer ${name.slice(0, 3) == 'Sat' || name.slice(0, 3) == 'Sun' ? 'bg-orange-300' : ''}`"
+                                        v-for="{ day, name } in getDaysBetween(ganttChart.date_from, ganttChart.date_to)"
+                                        :key="day">
+                                        <!-- <div @click="updateActual(date, schedule)"
+                                            v-if="schedule.actual_dates.find((actual) => format(actual.date, 'yyyy-MM-dd') == date)"
+                                            class="h-full w-full flex items-center justify-center">
+                                            <div class="p-1 bg-black"></div>
+                                        </div>
+                                        <div @click="updateActual(date, schedule)" v-else class="h-full w-full">
+                                        </div> -->
+                                        <div
+                                            class="absolute group/edit flex gap-2 z-10 bottom-6 w-max bg-white p-2 rounded-lg shadow-lg border border-blue-300 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-300">
+                                            <!-- <Button @click="showNoteModal(date, schedule)"
+                                                class="bg-purple-600 hover:bg-purple-300 active:bg-purple-700">
+                                                <FlNoteEdit class="text-white" />
+                                            </Button>
+                                            <Button @click="showNoteModal(date, schedule)"
+                                                class="bg-green-600 hover:bg-green-300 active:bg-green-700">
+                                                <MdHolidayVillage class="text-white" />
+                                            </Button>
+                                            <Button @click="showNoteModal(date, schedule)"
+                                                class="bg-red-600 hover:bg-red-300 active:bg-red-700">
+                                                <MdSick class="text-white" />
+                                            </Button>
+                                            <Button @click="showNoteModal(date, schedule)"
+                                                class="bg-yellow-600 hover:bg-yellow-300 active:bg-yellow-700">
+                                                <MdEventBusy class="text-white" />
+                                            </Button> -->
+                                        </div>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
             </tbody>
         </table>
     </div>

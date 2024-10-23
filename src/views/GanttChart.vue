@@ -4,7 +4,8 @@ import { Modal, Button } from '@/components/utilities';
 import { useGanttChartStore, usePrioritiesStore, useProjectsStore, useStatusesStore, useUsersStore } from '@/modules';
 import { GanttChart, ProjectFormTypes } from '@/types';
 import { MdFormatListBulletedAdd } from '@kalimahapps/vue-icons';
-import { format } from 'date-fns';
+// import { useDebounceFn } from '@vueuse/core';
+// import { format } from 'date-fns';
 import { computed, onMounted, provide, ref } from 'vue';
 
 const ganttChartStore = useGanttChartStore()
@@ -167,6 +168,81 @@ const storeNewKanban = async (payload: ProjectFormTypes) => {
     }
 }
 
+const changeStatus = async (id: number, status: string) => {
+    try {
+        await ganttChartStore.updateSchedule(id, { status })
+    } catch (e) {
+        console.log(e)
+    } finally {
+        await ganttChartStore.loadGanttCharts();
+        const selectedGanttChart = gantt_chart.value?.find((data) => data.id === ganttChart.value?.id);
+        if (selectedGanttChart) {
+            selectGanttChart(selectedGanttChart);
+        }
+    }
+};
+
+const getPlanManhour = () => {
+    if (!ganttChart.value) return
+    const plan = ganttChart.value.schedules?.map((schedule) => {
+        // Total time spent for this schedule
+        const totalPlanTime = schedule.plan_dates.reduce((acc, plan) => acc + plan.time_spent, 0);
+
+        // Total days calculated as every 8.75 is equivalent to 1 day
+        const totalDays = totalPlanTime / 8.75;
+
+        return {
+            label: schedule.name,
+            totalPlanTime, // Total time spent for this schedule
+            totalDays: totalDays.toFixed(2), // Rounded to 2 decimal places
+        };
+    });
+
+    return plan
+}
+
+const getActualManhour = () => {
+    if (!ganttChart.value) return;
+
+    const actual = ganttChart.value.schedules?.map((schedule) => {
+        // Total time spent for this schedule's actual dates
+        const totalActualTime = schedule.actual_dates.reduce((acc, actual) => acc + actual.time_spent, 0);
+
+        // Total days calculated as every 8.75 is equivalent to 1 day
+        const totalDays = totalActualTime / 8.75;
+
+        return {
+            label: schedule.name,
+            totalActualTime, // Total time spent for actual dates of this schedule
+            totalDays: totalDays.toFixed(2), // Rounded to 2 decimal places
+        };
+    });
+
+    return actual;
+};
+
+const getTotalManhour = () => {
+    const planData = getPlanManhour() || [];
+    const actualData = getActualManhour() || [];
+
+    // Calculate total plan hours and days
+    const totalPlanTime = planData.reduce((acc, schedule) => acc + schedule.totalPlanTime, 0);
+    const totalPlanDays = totalPlanTime / 8.75; // Every 8.75 hours is equivalent to 1 day
+
+    // Calculate total actual hours and days
+    const totalActualTime = actualData.reduce((acc, schedule) => acc + schedule.totalActualTime, 0);
+    const totalActualDays = totalActualTime / 8.75; // Every 8.75 hours is equivalent to 1 day
+
+    return {
+        totalPlanTime,
+        totalPlanDays: totalPlanDays.toFixed(2), // Rounded to 2 decimal places
+        totalActualTime,
+        totalActualDays: totalActualDays.toFixed(2), // Rounded to 2 decimal places
+    };
+};
+
+
+
 </script>
 <template>
     <div class="flex flex-col h-full w-full bg-white overflow-hidden rounded-sm p-2 gap-2 text-xs">
@@ -197,13 +273,13 @@ const storeNewKanban = async (payload: ProjectFormTypes) => {
                     <MdFormatListBulletedAdd />Create schedule
                 </Button>
             </div>
-            <div v-if="ganttChart">
+            <div v-if="ganttChart" class="">
                 <p class="text-blue-500 font-medium">Selected Gantt Chart: {{ ganttChart.name }}</p>
                 <p>Status: {{ ganttChart.status }}</p>
                 <p>Start date: {{ ganttChart.date_from }}</p>
                 <p>End date: {{ ganttChart.date_to }}</p>
                 <p>Percent completed: {{ ganttChart.percent_completed }}</p>
-                <p>Report: {{
+                <!-- <p>Report: {{
                     (() => {
                         const latestScheduleWithDates = ganttChart.schedules
                             ? [...ganttChart.schedules]
@@ -219,13 +295,66 @@ const storeNewKanban = async (payload: ProjectFormTypes) => {
                         }
                         return ''; // Return an empty string if no schedule has actual dates
                     })()
-                }}</p>
+                }}</p> -->
+            </div>
+
+            <div v-if="ganttChart">
+                <div class="flex-1 text-center p-1 bg-blue-500 text-white font-bold">TIME</div>
+                <div class="flex">
+                    <span
+                        class="p-2 w-20 text-center text-md bg-blue-200 border flex items-center justify-center ">PLAN</span>
+                    <span
+                        class="p-2 w-20 text-center text-lg bg-blue-200 border flex items-center justify-center font-medium">{{
+                            getTotalManhour().totalPlanTime }}</span>
+                </div>
+                <div class="flex">
+                    <span
+                        class="p-2 w-20 text-center text-md bg-blue-200 border flex items-center justify-center ">ACTUAL</span>
+                    <span
+                        class="p-2 w-20 text-center text-lg bg-blue-200 border flex items-center justify-center font-medium">{{
+                            getTotalManhour().totalActualTime }}</span>
+                </div>
+            </div>
+            <div v-if="ganttChart">
+                <div class="flex-1 text-center p-1 bg-blue-500 text-white font-bold">DAYS</div>
+                <div class="flex">
+                    <span
+                        class="p-2 w-20 text-center text-md bg-blue-200 border flex items-center justify-center ">PLAN</span>
+                    <span
+                        class="p-2 w-20 text-center text-lg bg-blue-200 border flex items-center justify-center font-medium">{{
+                            getTotalManhour().totalPlanDays }}</span>
+                </div>
+                <div class="flex">
+                    <span
+                        class="p-2 w-20 text-center text-md bg-blue-200 border flex items-center justify-center ">ACTUAL</span>
+                    <span
+                        class="p-2 w-20 text-center text-lg bg-blue-200 border flex items-center justify-center font-medium">{{
+                            getTotalManhour().totalActualDays }}</span>
+                </div>
             </div>
         </div>
-        <div class="h-full ">
+        <div class=" flex-1 overflow-y-auto overflow-x-hidden">
             <!-- Selected Gantt Chart -->
-            <GanttChartDisplay :store-projects="storeNewKanban" :submit-actual-date="submitActualDate" :submit-plan-date="submitPlanDate"
+            <GanttChartDisplay :change-status="changeStatus" :store-projects="storeNewKanban"
+                :submit-actual-date="submitActualDate" :submit-plan-date="submitPlanDate"
                 :destroy-actual-date="destroyActualDate" :destroy-plan-date="destroyPlanDate" />
+        </div>
+        <div v-if="ganttChart" class="flex gap-5 p-2">
+            <div>
+                <p class="font-medium text-blue-500">Plan Manhour</p>
+                <div v-for="(plan, i) in getPlanManhour()" :key="i" class="">
+                    {{ plan.label }}: Manhour of <p class="inline-flex font-bold text-red-700">{{ plan.totalPlanTime }}h
+                    </p> for a total of <p class="inline-flex font-bold text-red-700">{{ plan.totalDays }} days</p>
+                </div>
+            </div>
+            <div>
+                <p class="font-medium text-blue-500">Actual Manhour</p>
+                <div v-for="(actual, i) in getActualManhour()" :key="i" class="">
+                    {{ actual.label }}: Manhour of <p class="inline-flex font-bold text-red-700">{{
+                        actual.totalActualTime }}h
+                    </p> for a total of <p class="inline-flex font-bold text-red-700">{{ actual.totalDays }} days</p>
+                </div>
+            </div>
         </div>
         <Modal :visible="showGanttChartModal" @update:visible="showGanttChartModal = $event">
             <GanttChartModal :create-gantt="createGantt" />

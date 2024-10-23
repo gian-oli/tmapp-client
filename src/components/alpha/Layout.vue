@@ -23,7 +23,11 @@ provide('expanded', expanded)
           <BxSolidDashboard class="mr-2" />
           <p class="inline-flex">Dashboard</p>
         </SidebarItems>
-        <SidebarItems route_name="GanttChart" class="flex items-center mb-2 p-2 rounded-md hover:bg-gray-300">
+        <!-- <SidebarItems route_name="GanttChart" class="flex items-center mb-2 p-2 rounded-md hover:bg-gray-300">
+          <BsBarChartSteps class="mr-2" />
+          <p class="inline-flex">Gantt Chart</p>
+        </SidebarItems> -->
+        <SidebarItems route_name="GanttChart2" class="flex items-center mb-2 p-2 rounded-md hover:bg-gray-300">
           <BsBarChartSteps class="mr-2" />
           <p class="inline-flex">Gantt Chart</p>
         </SidebarItems>

@@ -11,7 +11,7 @@ import {
   useTasksStore,
   useRoleStore,
 } from "./modules";
-import { useRouter } from "vue-router";
+import { RouteLocationNormalized, useRouter } from "vue-router";
 import axios from "axios";
 import { HeOutlineStop } from "@kalimahapps/vue-icons";
 
@@ -54,34 +54,19 @@ const handleEscape = (event: KeyboardEvent) => {
   }
 };
 
-router.beforeEach(async (to, _, next) => {
-  if (loadingStore.isLoading) {
-    return; // Prevent navigation while loading
-  }
+// Define a type for the possible return values of checkAuthentication
+type AuthRedirect = true | { name: string };
 
-  loadingStore.setLoading(true);
-
+// The checkAuthentication function with an explicit return type
+const checkAuthentication = async (to: RouteLocationNormalized): Promise<AuthRedirect> => {
   const accessToken = sessionStorage.getItem("access_token");
 
-  if (to.name === "Register") {
-    loadingStore.setLoading(false);
-    return next(); // Allow navigation to Register
-  }
-
+  if (to.name === "Register") return true;
   if (to.name === "Login") {
-    if (!accessToken) {
-      loadingStore.setLoading(false);
-      return next(); // Proceed to login if no token
-    } else {
-      loadingStore.setLoading(false);
-      return next({ name: "Dashboard" }); // Redirect if already logged in
-    }
+    return !accessToken ? true : { name: "Dashboard" };
   }
 
-  if (!accessToken) {
-    loadingStore.setLoading(false);
-    return next({ name: "Login" }); // Redirect to login if no token
-  }
+  if (!accessToken) return { name: "Login" };
 
   axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 
@@ -89,18 +74,33 @@ router.beforeEach(async (to, _, next) => {
     const response = await loginStore.setProfile();
     if (response?.token) {
       sessionStorage.setItem("access_token", response.token);
-      return next(); // Proceed if token is valid
+      return true; // Proceed to route
     } else {
       sessionStorage.removeItem("access_token");
-      return next({ name: "Login" }); // Redirect to login if token is invalid
+      return { name: "Login" }; // Redirect if invalid token
     }
   } catch (error) {
     console.log("Error fetching profile:", error);
-    return next({ name: "Login" }); // Redirect to login on error
-  } finally {
-    loadingStore.setLoading(false);
+    return { name: "Login" }; // Redirect on error
+  }
+};
+
+router.beforeEach(async (to, _, next) => {
+  if (loadingStore.isLoading) return; // Prevent navigation while loading
+
+  loadingStore.setLoading(true);
+
+  const redirect = await checkAuthentication(to);
+  loadingStore.setLoading(false);
+
+  // Ensure redirect is either true or a redirection object
+  if (redirect === true) {
+    next(); // Proceed to the next route
+  } else {
+    next(redirect); // Pass the redirect object if not true
   }
 });
+
 
 
 watch(

@@ -10,5 +10,5 @@ export default defineConfig({
       "@": path.resolve(__dirname, './src')
     }
   },
-  base: 'http://10.164.58.52/tmapp'
+  base: 'tmapp'
 })

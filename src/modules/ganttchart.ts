@@ -18,7 +18,6 @@ export const useGanttChartStore = defineStore({
             signal: controller.signal,
           }
         );
-        console.log(response.data.data);
         this.ganttChart = response.data.data;
         return response.data.data;
       });
@@ -99,34 +98,70 @@ export const useGanttChartStore = defineStore({
         return result.data.data;
       });
     },
-    async editActualDate(payload: {
-      date: string;
-      note: string;
-      time_spent: number;
-      schedule_id: number;
-    }): Promise<ActualDates> {
-      return apiCall(async (controller) => {
-        const result = await axios.put<ApiResponse<ActualDates>>(
-          `actual-date/${payload.schedule_id}`,
-          payload,
-          {
-            signal: controller.signal,
-          }
-        );
-        return result.data.data;
-      });
-    },
+    // async editActualDate(payload: {
+    //   date: string;
+    //   note: string;
+    //   time_spent: number;
+    //   schedule_id: number;
+    // }): Promise<ActualDates> {
+    //   return apiCall(async (controller) => {
+    //     const result = await axios.put<ApiResponse<ActualDates>>(
+    //       `actual-date/${payload.schedule_id}`,
+    //       payload,
+    //       {
+    //         signal: controller.signal,
+    //       }
+    //     );
+    //     return result.data.data;
+    //   });
+    // },
     async deleteActualDate(id: number): Promise<ActualDates> {
       return apiCall(async (controller) => {
         const result = await axios.delete<ApiResponse<ActualDates>>(
           `actual-date/${id}`,
           {
             signal: controller.signal,
-          }
+          },
         );
         return result.data.data;
       });
     },
+    async updateSchedule(
+      id: number,
+      data: { status?: string, percent_completed?: number }
+    ): Promise<Schedule> {
+      return apiCall(async () => {
+        const result = await axios.put<ApiResponse<Schedule>>(
+          `schedule/${id}`,
+          data
+        );
+        return result.data.data;
+      });
+    },
+    async updatePlanDates(
+      id: number,
+      data: { dates: string[]}
+    ): Promise<PlanDates[]> {
+      return apiCall(async () => {
+        const result = await axios.put<ApiResponse<PlanDates[]>>(
+          `plan-date/${id}`,
+          data
+        );
+        return result.data.data;
+      });
+    },
+    async updateActualDates(
+      id: number,
+      data: { dates: string[]}
+    ): Promise<ActualDates[]> {
+      return apiCall(async () => {
+        const result = await axios.put<ApiResponse<ActualDates[]>>(
+          `actual-date/${id}`,
+          data
+        );
+        return result.data.data;
+      });
+    }
   },
   getters: {
     getGanttCharts: (state) => state.ganttChart,

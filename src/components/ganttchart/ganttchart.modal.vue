@@ -12,12 +12,12 @@ const props = defineProps<{
     }) => void;
 }>()
 
-
 const initial_form = ref({
     name: '',
     date_from: format(new Date(), 'yyyy-MM-dd'),
     date_to: format(addMonths(new Date(), 3), 'yyyy-MM-dd')
 })
+
 const form = ref<{
     name: string;
     date_from: string;

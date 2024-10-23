@@ -12,16 +12,13 @@ const props = defineProps<{
 const isClicked = ref(false);
 const isHovered = ref(false);
 const isDialogVisible = ref(false);
-
 let ignoreFirstClick = false;
 
+// Toggle dialog visibility
 function toggleClicked() {
   isClicked.value = !isClicked.value;
   isDialogVisible.value = isClicked.value;
-
-  setTimeout(() => {
-    ignoreFirstClick = false;
-  })
+  setTimeout(() => (ignoreFirstClick = false));
 }
 
 // Inject the `expanded` ref from the parent component
@@ -44,7 +41,7 @@ const animatedText = ref<HTMLElement | null>(null);
 const wrapLetters = (element: HTMLElement) => {
   const text = element.innerText;
   element.innerHTML = text.split('').map((char, index) =>
-    `<span style="transition-delay: ${index * 0.1}s;">${char}</span>`
+    `<span class="inline-block opacity-0" style="transition-delay: ${index * 0.1}s;">${char}</span>`
   ).join('');
 };
 
@@ -54,17 +51,16 @@ onMounted(() => {
   }
 });
 
+// Handle clicks outside the modal to close it
 const handleClickOutside = (event: MouseEvent) => {
   const modal = document.getElementById("settings_modal");
   if (!modal?.contains(event.target as Node) && !ignoreFirstClick) {
     isDialogVisible.value = false;
-    isClicked.value = false
-  } else {
-    console.log(modal?.contains(event.target as Node));
+    isClicked.value = false;
   }
 };
 
-// Watch isVisible prop and add/remove event listener accordingly
+// Watch the visibility of the dialog and manage event listeners
 watch(
   () => isDialogVisible.value,
   (newValue) => {
@@ -80,47 +76,60 @@ watch(
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside);
 });
-
-
 </script>
 
 <template>
-  <div :class="twMerge(`py-2 px-5 bg-gray-400 flex justify-between items-center`, customClass)">
-    <div class="text-xs font-extrabold">
+  <div :class="twMerge(`py-3 px-5 flex justify-between items-center shadow-lg`, customClass, 'bg-gradient-to-r from-blue-500 to-blue-300')">
+    <div class="text-xs font-extrabold text-white">
       <ChMenuHamburger v-if="!expanded" @click="toggleExpanded" class="inline-flex cursor-pointer size-5 mr-2" />
       <FaXmark v-else @click="toggleExpanded" class="inline-flex cursor-pointer size-5 mr-2" />
       tmapp_
     </div>
     <div class="relative inline-block">
-      <button @click="toggleClicked" :class="[
-        'group w-28 flex justify-between items-center rounded-full py-1 pr-1',
-        { 'bg-white': isClicked, 'shadow shadow-white': isHovered }
-      ]" @mouseover="isHovered = true" @mouseleave="isHovered = false">
-        <p ref="animatedText" :class="[
-          'text-black font-medium text-xs duration-300 ease-in-out',
-          {
-            'scale-105': isHovered,
-            'opacity-100 ml-10': isClicked,
-            'opacity-0': !isClicked ,
-          }
-        ]">
+      <button 
+        @click="toggleClicked" 
+        :class="[
+          'group w-32 flex justify-between items-center rounded-full py-1 pr-2 transition-all duration-300 ease-in-out',
+          { 'bg-white text-black shadow-lg': isClicked, 'hover:bg-blue-400': !isClicked }
+        ]" 
+        @mouseover="isHovered = true" 
+        @mouseleave="isHovered = false"
+        aria-haspopup="dialog" 
+        :aria-expanded="isClicked ? 'true' : 'false'"
+      >
+        <p 
+          ref="animatedText" 
+          class="text-black font-medium text-xs duration-300 ease-in-out transform"
+          :class="{
+            'scale-105 opacity-100 ml-1': isClicked,
+            'opacity-0': !isClicked,
+          }"
+        >
           Settings
         </p>
-        <BsGearFill :class="[
-          'size-5 duration-500 ease-in-out',
-          {
-            'scale-105': isHovered,
-            '-rotate-[360deg] -translate-x-20 text-gray-400': isClicked,
-          }
-        ]" />
+        <BsGearFill 
+          :class="[
+            'size-5 transition-transform duration-500 ease-in-out',
+            {
+              'scale-105': isHovered,
+              'rotate-180': isClicked,
+            }
+          ]" 
+        />
       </button>
 
-      <SettingsModal id="settings_modal" v-if="isDialogVisible" :isVisible="isDialogVisible" @update:visible="isDialogVisible = $event, isClicked = $event" />
+      <SettingsModal 
+        id="settings_modal" 
+        v-if="isDialogVisible" 
+        :isVisible="isDialogVisible" 
+        @update:visible="isDialogVisible = $event, isClicked = $event" 
+      />
     </div>
   </div>
 </template>
 
 <style scoped>
+/* Animate letters in the settings text */
 #animated-text span {
   display: inline-block;
   opacity: 0;

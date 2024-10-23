@@ -1,4 +1,4 @@
-import { Task, User, TeamMember, Swimlane, Statuses, Priority } from "./index";
+import { User, TeamMember, Swimlane, Statuses, Priority } from "./index";
 
 // Define the Comment interface
 export interface Comment {
