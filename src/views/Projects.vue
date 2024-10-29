@@ -5,7 +5,7 @@ import { AnOutlinedPlusSquare } from '@kalimahapps/vue-icons';
 import { onMounted, provide, ref, watch } from 'vue';
 
 import { Project, ProjectFormTypes } from '@/types';
-import { ProjectDetails, ProjectList, ProjectModal } from '@/components/projects';
+import { ProjectDetails, ProjectModal } from '@/components/projects';
 import { Button, Modal } from '@/components/utilities';
 import { useUsersStore, usePrioritiesStore, useStatusesStore, useProjectsStore } from '@/modules';
 

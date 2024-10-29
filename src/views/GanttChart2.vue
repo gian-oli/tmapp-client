@@ -17,7 +17,6 @@ import {
 } from "@kalimahapps/vue-icons";
 import { AsideModal } from "@/components/utilities";
 import { AddProject, AddSchedule } from "./ganttchart/components";
-import { useDebounceFn } from "@vueuse/core";
 
 const ganttChartStore = useGanttChartStore();
 const userStore = useUsersStore();
