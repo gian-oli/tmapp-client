@@ -8,7 +8,8 @@ import VCalendar from "v-calendar";
 import 'v-calendar/dist/style.css';
 
 axios.defaults.baseURL =
-  "http://10.164.58.52/port-projects/tm/server/public/api";
+  // "http://10.164.58.52/port-projects/tm/server/public/api";
+  "https://tmapp-server.railway.internal/public/api";
 
 const app = createApp(App);
 
