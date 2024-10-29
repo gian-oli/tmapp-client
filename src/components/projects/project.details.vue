@@ -2,139 +2,125 @@
 import { computed, provide, ref } from 'vue';
 import { useProjectsStore } from '@/modules';
 import { AkCircleChevronDown, AkCircleChevronUp, AnOutlinedEdit, CaTaskRemove } from '@kalimahapps/vue-icons';
-// import { format } from 'date-fns';
-import { Button } from '../utilities';
 
-const projectStore = useProjectsStore()
+const projectStore = useProjectsStore();
+const project = computed(() => projectStore.getSingleProject);
 
-/* Initialize Project */
-const project = computed(() => projectStore.getSingleProject)
-
-/* Emit updates: user and project */
 const emit = defineEmits<{
     (event: 'update:user_id', value: number): void;
     (event: 'update:project_id', value: number): void;
-}>()
+}>();
 
-/* Handles collapse buttons - design */
-const swimlaneState = ref<{ [key: number]: boolean }>({})
-/* Collapse Toggler */
+const swimlaneState = ref<{ [key: number]: boolean }>({});
 const toggleSwimlane = (id: number) => {
     swimlaneState.value[id] = !swimlaneState.value[id];
-}
-/* Provide selectedProject: for injection of computed project */
-provide('selectedProject', project)
+};
+provide('selectedProject', project);
 
+const projectRoutes = [
+    { name: 'TaskManagement', label: 'Task Management' },
+    { name: 'Swimlane', label: 'Swimlane', condition: project?.value?.project_type === 'Development' },
+    { name: 'TeamMember', label: 'Team Members' },
+    { name: 'Upload', label: 'Upload' },
+];
 </script>
 
 <template>
-    <div v-if="project != null || project != undefined">
-        <div class="bg-blue-500 rounded-t text-white p-[10px] text-md font-bold mb-1 sticky top-0 z-10 flex justify-between items-center">
+    <div v-if="project">
+        <!-- Project Header -->
+        <div class="bg-blue-500 text-white p-4 font-semibold sticky top-0 z-10 flex justify-between items-center shadow-sm rounded-t-lg">
             <p>{{ project.project_name }}</p>
-            <p>System {{ project.project_type }}</p>
+            <p>System: {{ project.project_type }}</p>
         </div>
-        <div class="flex h-screen">
-            <!-- Project Settings - ROUTES -->
-            <div class="min-w-40 font-medium bg-blue-50 h-full">
-                <p class="p-2 bg-blue-100">Project Settings</p>
-                <ul class="space-y-2 p-2">
-                    <li>
-                        <router-link active-class="bg-blue-200 font-bold" class="px-2 py-1 rounded hover:font-bold"
-                            :to="{ name: 'TaskManagement' }">Task
+
+        <div class="flex bg-gray-50">
+            <!-- Sidebar - Project Settings -->
+            <aside class="w-64 bg-white border-r shadow-md p-3">
+                <p class="font-semibold text-blue-600">Project Settings</p>
+                <ul class="space-y-2 mt-4">
+                    <li v-for="route in projectRoutes" :key="route.name">
+                        <router-link 
+                            :to="{ name: route.name }"
+                            class="block px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-blue-500 transition-colors"
+                            active-class="font-semibold bg-gray-100 text-blue-600"
+                        >
+                            {{ route.label }}
                         </router-link>
                     </li>
-                    <li>
-                        <router-link v-if="project.project_type === 'Development'" active-class="bg-blue-200 font-bold" class="px-2 py-1 rounded hover:font-bold"
-                            :to="{ name: 'Swimlane' }">Swimlane
-                        </router-link>
-                    </li>
-                    <li>
-                        <router-link active-class="bg-blue-200 font-bold" class="px-2 py-1 rounded hover:font-bold"
-                            :to="{ name: 'TeamMember' }">Team Members
-                        </router-link>
-                    </li>
-                    <li>
-                        <router-link active-class="bg-blue-200 font-bold" class="px-2 py-1 rounded hover:font-bold"
-                            :to="{ name: 'Upload' }">Upload
-                        </router-link>
-                    </li>
-                    <li></li>
                 </ul>
-            </div>
-            <!-- Router view -->
-            <div class="p-3 w-80 h-max  flex-1 ">
+            </aside>
+
+            <!-- Main Content - Router View -->
+            <main class="flex-1 h-full overflow-y-auto bg-white shadow-md rounded-lg p-6 space-y-6">
                 <router-view />
-            </div>
-            <!-- Swimlane List -->
-            <div class="px-2 space-y-1 min-w-80 bg-blue-50 max-w-80">
-                <p class="p-2 bg-blue-100 font-medium">Swimlane</p>
-                <div v-for="swimlane in project.swimlanes" :key="swimlane.id" class="bg-gray-100 duration-100">
+            </main>
 
-                    <div class="p-1 flex items-center justify-between">
-                        <p class="font-medium uppercase">{{ swimlane.swimlane_name }}</p>
-                        <button @click="toggleSwimlane(swimlane.id)" class="p-1 group cursor-pointer">
-                            <component :is="swimlaneState[swimlane.id] ? AkCircleChevronUp : AkCircleChevronDown"
-                                class="size-4 text-gray-600 group-hover:text-black" />
-                        </button>
-                    </div>
+            <!-- Swimlane Section -->
+            <aside class="w-64 bg-white border-l shadow-md overflow-hidden">
+                <p class="p-3 font-semibold text-blue-600">Swimlanes</p>
+                <div class="overflow-y-auto h-[calc(100vh-200px)]">
+                    <div v-for="swimlane in project.swimlanes" :key="swimlane.id" class="border-b">
+                        <!-- Swimlane Header -->
+                        <div class="flex justify-between items-center p-3 cursor-pointer hover:bg-gray-50 transition" @click="toggleSwimlane(swimlane.id)">
+                            <p class="font-semibold uppercase text-gray-800">{{ swimlane.swimlane_name }}</p>
+                            <component :is="swimlaneState[swimlane.id] ? AkCircleChevronUp : AkCircleChevronDown" class="text-gray-500 hover:text-gray-700 transition" />
+                        </div>
 
-                    <div
-                        :class="`text-opacity-100 duration-200 ease-in-out bg-white border overflow-y-auto px-2 ${swimlaneState[swimlane.id] ? 'h-40 ' : 'h-0 text-[0px]'}`">
-                        <!-- Render Swimlane Content -->
-                        <div v-for="column in swimlane.columns" :key="column.id" class="space-y-1">
-
-                            <p class="font-medium">{{ column.column_name }}</p>
-
-                            <ul class="border p-2">
-                            <!-- Display column tasks -->
-                                <div v-if="column.tasks.length > 0" class="space-y-1">
-                                <!-- Render Task Content -->
-                                    <li v-for="task in column.tasks" :key="task.id"
-                                        class="border border-l-blue-400 p-2 font-medium space-y-1">
-
-                                        <span class="w-full flex justify-end gap-2">
-                                            <div :style="{ backgroundColor: task.color_name || '#fff'}" class="flex-1 px-1 text-xs">
-                                                #{{ task.id }}
-                                            </div>
-
-                                            <div class="flex gap-1 items-center">
-                                                <Button color="secondary" class="text-yellow-700" title="Edit Task">
+                        <!-- Swimlane Content -->
+                        <div :class="swimlaneState[swimlane.id] ? 'max-h-64 transition-all overflow-y-auto' : 'max-h-0 overflow-hidden transition-all'">
+                            <div v-for="column in swimlane.columns" :key="column.id" class="px-4 py-3 bg-gray-50 border-t">
+                                <p class="font-semibold text-gray-700">{{ column.column_name }}</p>
+                                <ul class="space-y-3 mt-2">
+                                    <li v-for="task in column.tasks" :key="task.id" class="bg-white shadow rounded-lg p-3 flex flex-col space-y-2">
+                                        <div class="flex justify-between items-center">
+                                            <p class="truncate font-medium text-gray-900">{{ task.title }}</p>
+                                            {{task.description}}
+                                            <div class="flex items-center space-x-2">
+                                                <button title="Edit Task" class="text-blue-500 hover:text-blue-600">
                                                     <AnOutlinedEdit />
-                                                </Button>
-                                                <Button color="danger" class="text-yellow-700" title="Remove Task">
+                                                </button>
+                                                <button title="Remove Task" class="text-red-500 hover:text-red-600">
                                                     <CaTaskRemove />
-                                                </Button>
+                                                </button>
                                             </div>
-                                        </span>
-
-                                        <span class="flex justify-between items-center">
-                                            <p class="truncate max-w-[20ch]">{{ task.title }}</p>
-                                            <p class="flex  items-center gap-1">
-                                            <div
-                                                :class="`w-3 h-3 rounded-full border-2 ${task.priority_id == 3 ? ' border-red-200 bg-red-600 inline-flex animate-pulse' : task.priority_id == 2 ? 'border-yellow-200 bg-yellow-600 animate-spin' : 'border-green-200 bg-green-600'}`">
-                                            </div>{{ task.priorities.priority_name }}</p>
-                                        </span>
-
-                                        <span class="flex justify-between items-center">
+                                        </div>
+                                        <div class="flex justify-between items-center text-sm text-gray-500">
                                             <p>{{ task.user_id ? task.user.username : 'No member assigned' }}</p>
-                                            <!-- <p class="flex  items-center gap-1">
-                                            <div
-                                                :class="`w-3 h-3 rounded-full ${format(task.due_date, 'yyyy-MM-dd') <= format(new Date(), 'yyyy-MM-dd') ? 'border-2 border-red-200 bg-red-600 animate-pulse' : 'border-green-200 bg-green-600'} inline-flex`">
-                                            </div>{{ task.due_date }}</p> -->
-                                        </span>
-
+                                            <span class="flex items-center gap-1">
+                                                <div :class="`w-3 h-3 rounded-full ${task.priority_id === 3 ? 'bg-red-500' : task.priority_id === 2 ? 'bg-yellow-500' : 'bg-green-500'}`"></div>
+                                                <span>{{ task.priorities.priority_name }}</span>
+                                            </span>
+                                        </div>
                                     </li>
-                                </div>
-                                <!-- Display if there are no task in a specific column -->
-                                <div v-else>
-                                    <p class="text-center">No tasks found</p>
-                                </div>
-
-                            </ul>
+                                    <li v-if="!column.tasks.length" class="text-center text-gray-500 p-3 bg-gray-50 rounded-lg">
+                                        No tasks found
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </aside>
         </div>
     </div>
 </template>
+
+<style scoped>
+body {
+    font-family: Arial, sans-serif;
+}
+
+/* Additional styles for scrollbar */
+.overflow-y-auto::-webkit-scrollbar {
+    width: 8px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+</style>

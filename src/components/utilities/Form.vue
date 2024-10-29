@@ -4,6 +4,7 @@ import { useAttrs } from 'vue';
 // Define the props with the `submit` function
 const props = defineProps<{
     submit: (data: FormDataType) => void;
+    id?: string
 }>();
 
 const attrs = useAttrs()
@@ -35,7 +36,7 @@ const handleSubmit = (event: Event) => {
 </script>
 
 <template>
-    <form @submit="handleSubmit" v-bind="attrs">
+    <form @submit="handleSubmit" :id="id" v-bind="attrs">
         <slot></slot>
     </form>
 </template>

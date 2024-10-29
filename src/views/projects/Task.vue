@@ -3,6 +3,7 @@ import ProjectTestingMonitoring from '@/components/projects/project.testing.moni
 import Button from '@/components/utilities/Button.vue';
 import Form from '@/components/utilities/Form.vue';
 import Input from '@/components/utilities/Input.vue';
+import MarkdownEditor from '@/components/utilities/MarkdownEditor.vue';
 import { useProjectsStore, useTasksStore } from '@/modules';
 import { Priority, Profile, Project, TasksFormTypes, User } from '@/types';
 import { format } from 'date-fns';
@@ -113,79 +114,70 @@ const addTask = async () => {
 </script>
 
 <template>
-    <div class="space-y-2">
-        <p>Add task?</p>
-        <Form :submit="addTask" class="flex gap-2">
-            <div class="flex flex-wrap gap-3">
+    <div class="bg-white rounded-lg space-y-6 overflow-y-auto h-[50vh]">
+        <h2 class="text-2xl font-bold text-gray-800">Add a New Task</h2>
+        <Form :submit="addTask" class="flex flex-col gap-4 p-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Title input field -->
-                <div>
-                    <Input id="title" label="Title" v-model="task_form.title" required />
-                </div>
+                <Input id="title" label="Title" v-model="task_form.title" required class="bg-gray-100" />
 
                 <!-- Priority input field -->
-                <div>
-                    <Input id="priority" label="Priority" :options="priorities" v-model="task_form.priority_id"
-                        required />
-                </div>
-
-                <!-- Team member selection (visible for Development projects) -->
-                <div class="relative" v-if="selectedProject.project_type === 'Development'">
-                    <Input id="team-member" label="Team Member" :options="team_members"
-                        :disabled="team_members?.length === 0 || allowMultiple" v-model="task_form.user_id"
-                        class="min-w-40" />
-                    <router-link v-if="team_members?.length === 0" :to="{ name: 'TeamMember' }"
-                        class="absolute top-5 italic hover:font-medium text-red-600 bg-white text-justify px-1 -mt-2">
-                        No team member found.
-                    </router-link>
-                </div>
-
-                <!-- Color input field -->
-                <div class="flex min-w-40 gap-1">
-                    <input type="color" class="h-full" v-model="task_form.color_name" disabled />
-                    <Input type="text" v-model="task_form.color_name" id="color" label="Color" :options="colors" />
-                </div>
-
-                <!-- Description input field -->
-                <div class="w-full">
-                    <Input id="description" label="Description" isTextarea v-model="task_form.description" required />
-                </div>
-
-                <!-- Due date input field -->
-                <div>
-                    <Input id="due-date" label="Due Date" type="date" v-model="task_form.due_date" required />
-                </div>
-
-                <!-- Assigned by input field -->
-                <div>
-                    <Input id="assigned-by" label="Assigned By" :options="users" v-model="task_form.assigned_by"
-                        required />
-                </div>
-
-                <!-- Submit button -->
-                <div class="w-full">
-                    <Button type="submit" :disabled="swimlanes?.length === 0"
-                        :class="`disabled:cursor-not-allowed disabled:bg-gray-300 disabled:opacity-50`">
-                        Add Task
-                    </Button>
-                </div>
+                <Input id="priority" label="Priority" :options="priorities" v-model="task_form.priority_id" required
+                    class="bg-gray-100" />
             </div>
 
-            <!-- Swimlane selection (visible for non-Testing projects) -->
-            <div v-if="selectedProject.project_type !== 'Testing'" class="max-w-80 relative min-w-40 space-y-3">
-                <Input id="swimlane" label="Swimlane" :options="swimlanes" :disabled="swimlanes?.length === 0"
-                    v-model="task_form.swimlane_id" class="peer" required />
-                <router-link v-if="swimlanes?.length === 0" :to="{ name: 'Swimlane' }"
-                    title="Add a swimlane to continue"
-                    class="absolute top-0 italic hover:font-medium text-red-600 bg-white text-justify cursor-pointer px-1 -mt-2">
-                    No Swimlanes found.
+            <!-- Team member selection (visible for Development projects) -->
+            <div v-if="selectedProject.project_type === 'Development'">
+                <Input id="team-member" label="Team Member" :options="team_members"
+                    :disabled="team_members?.length === 0 || allowMultiple" v-model="task_form.user_id"
+                    class="bg-gray-100" />
+                <router-link v-if="team_members?.length === 0" :to="{ name: 'TeamMember' }"
+                    class="text-red-600 italic hover:underline">
+                    No team member found. Click here to add one.
                 </router-link>
             </div>
+
+            <!-- Flex container for color picker and swimlane -->
+            <div class="flex items-center gap-4">
+                <div class="flex items-center">
+                    <input type="color" v-model="task_form.color_name" class="w-10 h-10 border rounded-lg" />
+                    <Input type="text" v-model="task_form.color_name" id="color" label="Color" :options="colors"
+                        class="bg-gray-100" />
+                </div>
+
+                <!-- Swimlane selection -->
+                <Input id="swimlane" label="Swimlane" :options="swimlanes" :disabled="swimlanes?.length === 0"
+                    v-model="task_form.swimlane_id" class="bg-gray-100" />
+                <router-link v-if="swimlanes?.length === 0" :to="{ name: 'Swimlane' }"
+                    class="text-red-600 italic hover:underline">
+                    No Swimlanes found. Click here to add one.
+                </router-link>
+            </div>
+
+            <!-- Due date input field -->
+            <Input id="due-date" label="Due Date" type="date" v-model="task_form.due_date" required
+                class="bg-gray-100" />
+
+            <!-- Assigned by input field -->
+            <Input id="assigned-by" label="Assigned By" :options="users" v-model="task_form.assigned_by" required
+                class="bg-gray-100" />
+
+            <!-- Description input field -->
+            <div class="space-y-2">
+            <p class="text-gray-600">Description</p>
+                <MarkdownEditor v-model="task_form.description" />
+            </div>
+        {{ task_form.description }}
+            <!-- Submit button placed above the Swimlane input -->
+            <Button type="submit" :disabled="swimlanes?.length === 0"
+                class="bg-blue-600 text-white hover:bg-blue-700 w-max transition-all duration-200 py-4 px-8 text-base">
+                Add Task
+            </Button>
+
+            <!-- Conditional display for Testing project type -->
+            <div v-if="selectedProject.project_type === 'Testing'" class="flex gap-2 flex-wrap">
+                <ProjectTestingMonitoring :data="selectedProject.swimlanes" />
+            </div>
         </Form>
-        <div v-if="selectedProject.project_type == 'Testing'" class="flex gap-2 flex-wrap">
-            <!-- {{ selectedProject.swimlanes }} -->
-            <ProjectTestingMonitoring :data="selectedProject.swimlanes" />
-        </div>
-        <div v-else>
-        </div>
     </div>
 </template>

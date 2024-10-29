@@ -8,19 +8,32 @@ const { project, viewProject } = defineProps<{
 }>()
 
 const stateViewProject = inject('stateViewProject') as Ref<Project>
-
 </script>
+
 <template>
-    <div :class="` w-full cursor-pointer  ${stateViewProject?.id == project.id ? 'bg-blue-200' : 'bg-gray-100'}`">
-        <span @click="viewProject(project)"
-            :class="`flex justify-between  py-1 px-5 text-xs w-full ${stateViewProject?.id == project.id ? 'text-black' : 'text-gray-500 min-[769px]:hover:bg-gray-50'}`">
-            <div>
-                <p class="font-bold">{{ project.project_name }} - {{ project.project_type }}</p>
-                <p>Deadline : {{ project.deadline }}</p>
+    <div 
+        @click="viewProject(project)"
+        :class="`w-full cursor-pointer border-b py-3 transition-colors duration-150 ${
+            stateViewProject?.id == project.id ? 'bg-indigo-50 border-indigo-300' : 'hover:bg-gray-50 border-gray-200'
+        }`">
+        <!-- Project Info Wrapper -->
+        <div class="flex justify-between items-center px-4">
+            <!-- Left Section: Project Name and Type -->
+            <div class="text-left">
+                <p class="font-semibold text-gray-800 text-base truncate">
+                    {{ project.project_name }}
+                </p>
+                <p class="text-sm text-gray-500">{{ project.project_type }}</p>
+                <p class="text-xs text-gray-400 mt-1">
+                    Deadline: <span class="text-gray-600">{{ project.deadline || 'No deadline set' }}</span>
+                </p>
             </div>
-            <div>
-                <p>{{ project.finished_at ? project.finished_at : '-' }}</p>
+
+            <!-- Right Section: Completion Date -->
+            <div class="text-right text-sm">
+                <p class="uppercase text-gray-400 font-semibold">Completed</p>
+                <p class="text-gray-600">{{ project.finished_at || '-' }}</p>
             </div>
-        </span>
+        </div>
     </div>
 </template>

@@ -187,6 +187,8 @@ watch(selectedSchedule, (newSchedule) => {
     <div class="flex flex-col h-full w-full bg-white rounded-lg shadow-md p-4 gap-4 text-xs">
         <img class="absolute size-60 bottom-0 right-60" src="/assets/images/schedule-img.png" />
         <div class="flex gap-4">
+        <div>
+        </div>
             <div class="w-2/3 h-full relative flex flex-col overflow-y-auto">
                 <draggable v-model="localSchedules" group="schedules" @start="onDragStart" @end="onDragEnd"
                     :animation="200" :clone="cloneItem" item-key="id">
