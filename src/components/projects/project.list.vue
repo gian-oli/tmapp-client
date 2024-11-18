@@ -16,9 +16,7 @@ const stateViewProject = inject('stateViewProject') as Ref<Project>
         :class="`w-full cursor-pointer border-b py-3 transition-colors duration-150 ${
             stateViewProject?.id == project.id ? 'bg-indigo-50 border-indigo-300' : 'hover:bg-gray-50 border-gray-200'
         }`">
-        <!-- Project Info Wrapper -->
         <div class="flex justify-between items-center px-4">
-            <!-- Left Section: Project Name and Type -->
             <div class="text-left">
                 <p class="font-semibold text-gray-800 text-base truncate">
                     {{ project.project_name }}
@@ -29,7 +27,6 @@ const stateViewProject = inject('stateViewProject') as Ref<Project>
                 </p>
             </div>
 
-            <!-- Right Section: Completion Date -->
             <div class="text-right text-sm">
                 <p class="uppercase text-gray-400 font-semibold">Completed</p>
                 <p class="text-gray-600">{{ project.finished_at || '-' }}</p>

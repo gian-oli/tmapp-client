@@ -29,6 +29,9 @@ export default {
       transformOrigin: {
         'custom': '50% -200%',
       },
+      fontFamily: {
+        yuGothic: ['"Yu Gothic"', 'sans-serif'], // Define "Yu Gothic" font family
+      },
     },
   },
   plugins: [
