@@ -9,6 +9,12 @@ import { Priority, Profile, Project, TasksFormTypes, User } from '@/types';
 import { format } from 'date-fns';
 import { computed, inject, ref, Ref } from 'vue';
 
+import { useRoute } from "vue-router";
+
+
+const route = useRoute()
+const getId = computed(() => route.params.id)
+
 // Initialize stores for managing projects and tasks
 const tasksStore = useTasksStore();
 const projectStore = useProjectsStore();
@@ -114,6 +120,7 @@ const addTask = async () => {
 </script>
 
 <template>
+    {{ getId }}
     <div class="bg-white rounded-lg space-y-6 overflow-y-auto h-[50vh]">
         <h2 class="text-2xl font-bold text-gray-800">Add a New Task</h2>
         <Form :submit="addTask" class="flex flex-col gap-4 p-2">

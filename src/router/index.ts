@@ -49,6 +49,11 @@ const routes = [
             component: TaskManagement
           },
           {
+            path: 'task-management/:id?',
+            name: 'TaskManagement',
+            component: TaskManagement
+          },
+          {
             path: 'team-member',
             name: 'TeamMember',
             component: TeamMember
