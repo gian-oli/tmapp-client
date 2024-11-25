@@ -2,10 +2,13 @@
 import ProjectList from "@/components/projects/project.list.vue";
 import Button from "@/components/utilities/Button.vue";
 import { useProjectsStore, useTasksStore } from "@/modules";
-import {  Profile, Project } from "@/types";
+import {  Profile, Project, Task } from "@/types";
 import { AkCircleChevronUp, AkCircleChevronDown, AkCircleChevronLeftFill, AkCircleChevronRightFill, BsEyeFill } from "@kalimahapps/vue-icons";
 import { differenceInSeconds } from "date-fns";
 import { computed, inject, onMounted, provide, ref, Ref, watch } from "vue";
+import { AsideModal } from "@/components/utilities";
+import { ViewTask} from "@/views/task"
+
 
 const projectStore = useProjectsStore()
 const taskStore = useTasksStore()
@@ -16,6 +19,33 @@ const profile = computed(() => inject_profile.value)
 const myProjects = computed(() => projectStore.getMyProjects)
 
 const stateViewProject = ref<Project>();
+const viewTaskModal = ref<Boolean>(false)
+const viewTaskData = ref<Task>({
+    id: 0,                           
+    title: '',                       
+    description: '',                 
+    due_date: '',                    
+    finished_at: null,               
+    assigned_by: '',                 
+    user_id: null,                   
+    user: {
+        id: 0,
+        name: '',
+        email: ''
+    },                               
+    color_name: null,                
+    start_date: null,                
+    priority_id: 0,                  
+    priorities: {
+        id: 0,
+        name: ''
+    },                               
+    column_id: 0,                    
+    comments: [],                    
+    created_at: new Date().toISOString(), 
+    updated_at: new Date().toISOString(), 
+    deleted_at: null                   
+});
 
 const viewProject = (data: Project) => {
     stateViewProject.value = data
@@ -23,6 +53,15 @@ const viewProject = (data: Project) => {
 }
 
 provide('stateViewProject', stateViewProject);
+
+const openViewTask = (data) => {
+    viewTaskData.value = data
+    viewTaskModal.value = true
+}
+
+const taskData = computed(() => viewTaskData.value)
+
+provide('taskData', taskData)
 
 onMounted(() => {
     projectStore.loadMyProjects(profile.value.id)
@@ -298,7 +337,7 @@ const formatTimeSpent = (start_date: string, finished_at: string) => {
                                                     formatTimeSpent(task.start_date, task.finished_at) : '-' }}</p>
                                             </span>
                                             <span class="w-full flex justify-end">
-                                                <Button class="flex items-center gap-1">
+                                                <Button @click="openViewTask(task)" class="flex items-center gap-1">
                                                     <BsEyeFill />View
                                                 </Button>
                                             </span>
@@ -317,4 +356,7 @@ const formatTimeSpent = (start_date: string, finished_at: string) => {
             </div>
         </div>
     </div>
+    <AsideModal :visible="viewTaskModal" @update:visible="viewTaskModal = $event">
+        <ViewTask/>
+    </AsideModal>
 </template>

@@ -74,7 +74,6 @@ const projectRoutes = [
                                     <li v-for="task in column.tasks" :key="task.id" class="bg-white shadow rounded-lg p-3 flex flex-col space-y-2">
                                         <div class="flex justify-between items-center">
                                             <p class="truncate font-medium text-gray-900">{{ task.title }}</p>
-                                            {{task.description}}
                                             <div class="flex items-center space-x-2">
                                                 <button title="Edit Task" class="text-blue-500 hover:text-blue-600">
                                                     <AnOutlinedEdit />

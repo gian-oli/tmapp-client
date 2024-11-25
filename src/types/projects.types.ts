@@ -39,4 +39,5 @@ export interface ProjectFormTypes {
   deadline: string;
   priority_id: number;
   status_id: number;
+  schedule_id: number;
 }

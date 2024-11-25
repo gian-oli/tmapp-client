@@ -106,7 +106,10 @@ const addTask = async () => {
             await tasksStore.batchTaskStore({ tasks });
         } else {
             // Store a single task for non-Testing projects
-            await tasksStore.storeTask(task_form.value);
+            const result = await tasksStore.storeTask(task_form.value);
+            if( result ) {
+                task_form.value = {...initial_task_form}
+            }
         }
     } catch (error) {
         console.error('Error adding task:', error);
@@ -174,7 +177,6 @@ const addTask = async () => {
             <p class="text-gray-600">Description</p>
                 <MarkdownEditor v-model="task_form.description" />
             </div>
-        {{ task_form.description }}
             <!-- Submit button placed above the Swimlane input -->
             <Button type="submit" :disabled="swimlanes?.length === 0"
                 class="bg-blue-600 text-white hover:bg-blue-700 w-max transition-all duration-200 py-4 px-8 text-base">

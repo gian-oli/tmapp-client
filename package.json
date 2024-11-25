@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@kalimahapps/vue-icons": "^1.7.1",
-    "@tailwindcss/typography": "^0.5.15",
     "@vueuse/core": "^11.1.0",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.4",
@@ -31,6 +30,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.15",
     "@types/axios": "^0.14.0",
     "@types/marked": "^6.0.0",
     "@types/node": "^22.5.0",

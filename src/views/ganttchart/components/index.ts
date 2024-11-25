@@ -1,3 +1,4 @@
 import AddProject from "./addproject.vue";
 import AddSchedule from "./addschedule.vue";
-export { AddProject, AddSchedule };
+import AddKanboard from './addkanboard.vue'
+export { AddProject, AddSchedule, AddKanboard };
