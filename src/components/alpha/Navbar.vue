@@ -79,8 +79,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div :class="twMerge(`py-3 px-5 flex justify-between items-center shadow-lg`, customClass, 'bg-gradient-to-r from-blue-500 to-blue-300')">
-    <div class="text-xs font-extrabold text-white">
+  <div :class="twMerge(`py-3 px-5 flex justify-between items-center shadow-lg`, customClass, 'border-b bg-white')">
+    <div class="text-xs font-extrabold text-black">
       <ChMenuHamburger v-if="!expanded" @click="toggleExpanded" class="inline-flex cursor-pointer size-5 mr-2" />
       <FaXmark v-else @click="toggleExpanded" class="inline-flex cursor-pointer size-5 mr-2" />
       tmapp_
@@ -90,7 +90,7 @@ onBeforeUnmount(() => {
         @click="toggleClicked" 
         :class="[
           'group w-32 flex justify-between items-center rounded-full py-1 pr-2 transition-all duration-300 ease-in-out',
-          { 'bg-white text-black shadow-lg': isClicked, 'hover:bg-blue-400': !isClicked }
+          { 'bg-gray-100 shadow-lg': isClicked, 'hover:bg-gray-100': !isClicked }
         ]" 
         @mouseover="isHovered = true" 
         @mouseleave="isHovered = false"
@@ -112,7 +112,7 @@ onBeforeUnmount(() => {
             'size-5 transition-transform duration-500 ease-in-out',
             {
               'scale-105': isHovered,
-              'rotate-180': isClicked,
+              '-rotate-[360deg] -translate-x-24': isClicked,
             }
           ]" 
         />

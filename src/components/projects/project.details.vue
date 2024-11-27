@@ -51,7 +51,7 @@ const projectRoutes = [
             </aside>
 
             <!-- Main Content - Router View -->
-            <main class="flex-1 h-full overflow-y-auto bg-white shadow-md rounded-lg p-6 space-y-6">
+            <main class="flex-1 h-fit overflow-y-auto bg-white shadow-md rounded-lg p-6 space-y-6">
                 <router-view />
             </main>
 

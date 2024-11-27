@@ -11,7 +11,7 @@ const stateViewProject = inject('stateViewProject') as Ref<Project>
 </script>
 
 <template>
-    <div 
+    <!-- <div 
         @click="viewProject(project)"
         :class="`w-full cursor-pointer border-b py-3 transition-colors duration-150 ${
             stateViewProject?.id == project.id ? 'bg-indigo-50 border-indigo-300' : 'hover:bg-gray-50 border-gray-200'
@@ -32,5 +32,12 @@ const stateViewProject = inject('stateViewProject') as Ref<Project>
                 <p class="text-gray-600">{{ project.finished_at || '-' }}</p>
             </div>
         </div>
+    </div> -->
+
+    <div :class="`p-3 my-1 cursor-pointer rounded-lg transition-colors duration-200 ${stateViewProject?.id === project.id ? 'bg-blue-100 border-l-4 border-blue-300' : 'hover:bg-blue-50'
+        }`" @click="viewProject(project)">
+        <p class="font-medium text-gray-800">{{ project.project_name }}</p>
+        <p class="text-xs text-gray-500">{{ project.project_type }}</p>
+        <p class="text-xs text-gray-400 mt-1">Deadline: {{ project.deadline || 'No deadline' }}</p>
     </div>
 </template>

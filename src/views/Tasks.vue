@@ -2,12 +2,12 @@
 import ProjectList from "@/components/projects/project.list.vue";
 import Button from "@/components/utilities/Button.vue";
 import { useProjectsStore, useTasksStore } from "@/modules";
-import {  Profile, Project, Task } from "@/types";
+import { Profile, Project, Task } from "@/types";
 import { AkCircleChevronUp, AkCircleChevronDown, AkCircleChevronLeftFill, AkCircleChevronRightFill, BsEyeFill } from "@kalimahapps/vue-icons";
 import { differenceInSeconds } from "date-fns";
 import { computed, inject, onMounted, provide, ref, Ref, watch } from "vue";
 import { AsideModal } from "@/components/utilities";
-import { ViewTask} from "@/views/task"
+import { ViewTask } from "@/views/task"
 
 
 const projectStore = useProjectsStore()
@@ -19,32 +19,32 @@ const profile = computed(() => inject_profile.value)
 const myProjects = computed(() => projectStore.getMyProjects)
 
 const stateViewProject = ref<Project>();
-const viewTaskModal = ref<Boolean>(false)
+const viewTaskModal = ref(false)
 const viewTaskData = ref<Task>({
-    id: 0,                           
-    title: '',                       
-    description: '',                 
-    due_date: '',                    
-    finished_at: null,               
-    assigned_by: '',                 
-    user_id: null,                   
+    id: 0,
+    title: '',
+    description: '',
+    due_date: '',
+    finished_at: null,
+    assigned_by: '',
+    user_id: null,
     user: {
         id: 0,
-        name: '',
+        username: '',
         email: ''
-    },                               
-    color_name: null,                
-    start_date: null,                
-    priority_id: 0,                  
+    },
+    color_name: null,
+    start_date: null,
+    priority_id: 0,
     priorities: {
         id: 0,
-        name: ''
-    },                               
-    column_id: 0,                    
-    comments: [],                    
-    created_at: new Date().toISOString(), 
-    updated_at: new Date().toISOString(), 
-    deleted_at: null                   
+        priority_name: ''
+    },
+    column_id: 0,
+    comments: [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    deleted_at: null
 });
 
 const viewProject = (data: Project) => {
@@ -54,7 +54,7 @@ const viewProject = (data: Project) => {
 
 provide('stateViewProject', stateViewProject);
 
-const openViewTask = (data) => {
+const openViewTask = (data: Task) => {
     viewTaskData.value = data
     viewTaskModal.value = true
 }
@@ -149,18 +149,21 @@ const formatTimeSpent = (start_date: string, finished_at: string) => {
 
 </script>
 <template>
-    <div class="p-2 bg-white flex h-full gap-2">
-        <div class="min-w-80 max-w-80">
-            <p class="font-medium bg-blue-500 py-[10px] px-1 text-white rounded-t text-xs">MY PROJECTS</p>
-            <div v-for="project in myProjects" :key="project.id"
-                :class="`border-l-2 ${project.status_id == 3 ? 'border-red-400' : project.status_id == 2 ? 'border-yellow-400' : 'border-green-400'}`">
-                <ProjectList :viewProject="viewProject" :project="project" />
+    <div class="bg-white flex h-full gap-2 shadow-md">
+        <div class="min-w-80 max-w-80 space-y-4">
+            <p class="font-extrabold bg-blue-100 p-3 text-blue-700 rounded-t rounded ">MY PROJECTS</p>
+            <div class="border p-2 rounded-lg space-y-6  h-[80vh]">
+                <p class="text-center font-bold">Project List</p>
+                <div v-for="project in myProjects" :key="project.id">
+                    <ProjectList :viewProject="viewProject" :project="project" />
+                </div>
             </div>
         </div>
 
-        <div class="space-y-2 w-full border overflow-y-auto"
+        <div class="w-full overflow-y-auto"
             v-if="projectStore.getSingleProject.project_type == 'Testing'">
-            <div class="p-2 bg-blue-500 rounded-t text-white sticky top-0 z-20">{{ stateViewProject?.project_name }} -
+            <div class="p-3 bg-blue-100 rounded-t text-blue-700 font-extrabold sticky top-0 z-20">{{
+                stateViewProject?.project_name }} -
                 {{
                     stateViewProject?.project_type }}</div>
             <div class="flex justify-evenly w-full gap-2 px-2">
@@ -245,16 +248,18 @@ const formatTimeSpent = (start_date: string, finished_at: string) => {
                 </div>
             </div>
         </div>
-        <div v-else class="w-full space-y-2 border overflow-y-scroll">
-            <div class="p-2 bg-blue-500 rounded-t text-white sticky top-0 z-20">{{ stateViewProject?.project_name }} -
+        <div v-else class="w-full space-y-4 overflow-y-scroll">
+            <div class="p-3 bg-blue-100 rounded-t text-blue-700 font-extrabold sticky top-0 z-20">{{
+                stateViewProject?.project_name }} -
                 {{
                     stateViewProject?.project_type }}</div>
-            <div class="flex flex-col w-full px-2">
-                <div v-for="swimlane in developmentSwimlane" :key="swimlane.id" class="bg-gray-100 duration-100">
+            <div class="flex flex-col w-full p-2 border rounded-md ">
+                <div v-for="swimlane in developmentSwimlane" :key="swimlane.id"
+                    class="bg-blue-50 hover:bg-white duration-100">
 
-                    <div class="p-1 flex items-center justify-between group cursor-pointer"
+                    <div class="p-2 flex items-center justify-between group cursor-pointer "
                         @click="toggleSwimlane(swimlane.id)">
-                        <p class="font-medium uppercase">{{ swimlane.swimlane_name }}</p>
+                        <p class="font-extrabold uppercase">{{ swimlane.swimlane_name }}</p>
                         <button>
                             <component :is="swimlaneState[swimlane.id] ? AkCircleChevronUp : AkCircleChevronDown"
                                 class="size-4 text-gray-600 group-hover:text-black" />
@@ -357,6 +362,6 @@ const formatTimeSpent = (start_date: string, finished_at: string) => {
         </div>
     </div>
     <AsideModal :visible="viewTaskModal" @update:visible="viewTaskModal = $event">
-        <ViewTask/>
+        <ViewTask />
     </AsideModal>
 </template>

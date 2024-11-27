@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, provide, watch } from "vue";
+import { computed, onMounted, provide, ref, watch } from "vue";
 import {
   useUsersStore,
   usePrioritiesStore,
@@ -14,6 +14,11 @@ import {
 import { RouteLocationNormalized, useRouter } from "vue-router";
 import axios from "axios";
 import { HeOutlineStop } from "@kalimahapps/vue-icons";
+import ToastManager from "./components/utilities/Toast/ToastManager.vue";
+import { useToast } from '@/components/utilities/Toast/useToast'
+import Alert  from '@/components/utilities/Alert/Alert.vue'
+
+const toastManagerRef = ref(null)
 
 const router = useRouter();
 const userStore = useUsersStore();
@@ -25,6 +30,7 @@ const projectStore = useProjectsStore();
 const swimlaneStore = useSwimlaneStore();
 const taskStore = useTasksStore();
 const roleStore = useRoleStore();
+const toast = useToast()
 
 // Provide computed store values to the app
 const users = computed(() => userStore.getUsers);
@@ -101,8 +107,6 @@ router.beforeEach(async (to, _, next) => {
   }
 });
 
-
-
 watch(
   () => isLoading.value,
   (newval) => {
@@ -116,6 +120,12 @@ watch(
     }
   }
 );
+
+onMounted(() => {
+  if (toastManagerRef.value) {
+    toast.setToastManager(toastManagerRef.value)
+  }
+})
 </script>
 
 <template>
@@ -135,4 +145,6 @@ watch(
     </div>
   </div>
   <router-view></router-view>
+  <ToastManager ref="toastManagerRef" />
+  <Alert />
 </template>

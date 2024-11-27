@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { format } from 'date-fns';
+// import { format } from 'date-fns';
 import { useRoute } from 'vue-router';
-import { AnOutlinedPlusSquare } from '@kalimahapps/vue-icons';
+// import { AnOutlinedPlusSquare } from '@kalimahapps/vue-icons';
 import { onMounted, provide, ref, watch } from 'vue';
 
-import { Project, ProjectFormTypes } from '@/types';
-import { ProjectDetails, ProjectModal } from '@/components/projects';
-import { Button, Modal } from '@/components/utilities';
+import { Project } from '@/types';
+import { ProjectDetails } from '@/components/projects';
+// import { Button, Modal } from '@/components/utilities';
 import { useUsersStore, usePrioritiesStore, useStatusesStore, useProjectsStore } from '@/modules';
 
 const projectStore = useProjectsStore();
@@ -15,19 +15,19 @@ const priorityStore = usePrioritiesStore();
 const statusStore = useStatusesStore();
 const route = useRoute();
 
-const showProjectStoreModal = ref(false);
+// const showProjectStoreModal = ref(false);
 const showTaskStoreModal = ref(false);
 
 /** Project form */
-const initialProjectFormState: ProjectFormTypes = {
-  user_id: '',
-  project_name: '',
-  project_type: 'Development',
-  deadline: format(new Date(), 'yyyy-MM-dd'),
-  priority_id: 1,
-  status_id: 1,
-};
-const post_project_form = ref<ProjectFormTypes>({ ...initialProjectFormState });
+// const initialProjectFormState: ProjectFormTypes = {
+//   user_id: '',
+//   project_name: '',
+//   project_type: 'Development',
+//   deadline: format(new Date(), 'yyyy-MM-dd'),
+//   priority_id: 1,
+//   status_id: 1,
+// };
+// const post_project_form = ref<ProjectFormTypes>({ ...initialProjectFormState });
 
 /** Viewing */
 const stateViewProject = ref<Project>();
@@ -41,19 +41,19 @@ const toggleTasksStoreModal = () => {
 };
 
 /** Storing new Projects */
-const storeProject = async () => {
-  try {
-    const response = await projectStore.setProjectStore(post_project_form.value);
-    if (response) {
-      projectStore.setProjects();
-      post_project_form.value = { ...initialProjectFormState };
-      showProjectStoreModal.value = false;
-    }
-    return response;
-  } catch (error) {
-    throw error;
-  }
-};
+// const storeProject = async () => {
+//   try {
+//     const response = await projectStore.setProjectStore(post_project_form.value);
+//     if (response) {
+//       projectStore.setProjects();
+//       post_project_form.value = { ...initialProjectFormState };
+//       showProjectStoreModal.value = false;
+//     }
+//     return response;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 /** Watching the state view project movement, updates design */
 watch(stateViewProject, async (newValue) => {
@@ -78,15 +78,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="h-full overflow-hidden bg-blue-50 p-5 text-sm rounded-lg shadow-md">
     <!-- Header -->
     <div
       class="flex items-center justify-between mb-4 p-3 bg-blue-100 text-blue-700 font-semibold rounded-lg shadow-sm">
       <span>Projects Overview</span>
-      <Button @click="showProjectStoreModal = !showProjectStoreModal" class="flex items-center gap-1">
-        <AnOutlinedPlusSquare class="w-5 h-5 text-blue-600" />
-        <span>Add Project</span>
-      </Button>
     </div>
 
     <!-- Content Layout -->
@@ -116,10 +111,9 @@ onMounted(() => {
     </div>
 
     <!-- Project Store Modal Component -->
-    <Modal :visible="showProjectStoreModal" @update:visible="showProjectStoreModal = $event">
+    <!-- <Modal :visible="showProjectStoreModal" @update:visible="showProjectStoreModal = $event">
       <ProjectModal :post_project_form="post_project_form" :storeProject="storeProject" />
-    </Modal>
-  </div>
+    </Modal> -->
 </template>
 
 <style scoped>

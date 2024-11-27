@@ -20,18 +20,21 @@ import {
 import { AsideModal } from "@/components/utilities";
 import { AddProject, AddSchedule, AddKanboard } from "./ganttchart/components";
 import { ProjectFormTypes } from "@/types/projects.types";
+import { useAlert } from "@/components/utilities/Alert/useAlert";
 
 const ganttChartStore = useGanttChartStore();
 const userStore = useUsersStore();
 const priorityStore = usePrioritiesStore();
 const statusStore = useStatusesStore();
 const projectStore = useProjectsStore()
+const alert = useAlert()
 
 onMounted(() => {
   ganttChartStore.loadGanttCharts();
   userStore.setUsers();
   priorityStore.setPriorities();
   statusStore.setStatuses();
+  alert.success("This is a success message!", "Success Title", 3000);
 });
 
 const ganttCharts = computed(() => ganttChartStore.getGanttCharts);
@@ -160,18 +163,18 @@ const updateActualDates = async (id: number, data: { dates: string[] }) => {
 
 <template>
   <div
-    class="flex flex-col h-full w-full bg-gradient-to-b from-blue-50 to-white overflow-hidden rounded-lg shadow-md p-4 gap-4 text-xs relative"
+    class="flex flex-col h-full w-full overflow-hidden rounded-lg shadow-md p-4 gap-4 text-xs relative"
   >
     <!-- Gantt Charts List -->
     <div
-      class="h-40 bg-gradient-to-r from-purple-100 via-white to-indigo-100 flex items-center gap-5 p-4 rounded-lg shadow-inner overflow-x-auto"
+      class="h-40  flex items-center gap-5 p-4 rounded-lg shadow-inner overflow-x-auto"
     >
       <div
         v-for="gantt_chart in ganttCharts"
         :key="gantt_chart.id"
         @click="select_schedule(gantt_chart || [])"
         :class="[
-          'h-32 p-4 min-w-60 rounded-lg cursor-pointer border shadow-md transition-transform transform hover:scale-105 hover:shadow-lg',
+          'h-28 p-4 min-w-60 rounded-lg cursor-pointer border shadow-md transition-transform transform hover:scale-105 hover:shadow-lg',
           gantt_chart.id === selectedGanttChartId
             ? 'border-4 border-blue-500 bg-blue-100'
             : 'border-gray-300 bg-white',
@@ -263,7 +266,7 @@ const updateActualDates = async (id: number, data: { dates: string[] }) => {
       </div>
     </div>
 
-    <div class="fixed bottom-8 right-12 cursor-pointer group">
+    <div class="fixed bottom-11 right-12 cursor-pointer group">
       <!-- Main Button -->
       <div
         class="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 opacity-50 rounded-full transition-all duration-300 hover:opacity-100 hover:shadow-lg flex items-center justify-center shadow-blue-500/50 hover:scale-105 border-2 border-blue-300 p-4 relative group-hover:bg-opacity-100"

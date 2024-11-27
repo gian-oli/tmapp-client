@@ -123,8 +123,7 @@ const addTask = async () => {
 </script>
 
 <template>
-    {{ getId }}
-    <div class="bg-white rounded-lg space-y-6 overflow-y-auto h-[50vh]">
+    <div class="bg-white rounded-lg space-y-6 overflow-y-auto h-[70vh]">
         <h2 class="text-2xl font-bold text-gray-800">Add a New Task</h2>
         <Form :submit="addTask" class="flex flex-col gap-4 p-2">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
