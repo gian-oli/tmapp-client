@@ -6,7 +6,7 @@ import {
   useUsersStore,
   useProjectsStore
 } from "@/modules";
-import { computed, onMounted, provide, ref } from "vue";
+import { computed, inject, onMounted, provide, ref } from "vue";
 import GanttChartSchedule from "@/views/ganttchart/ganttchart.schedule.vue"; // Import your component
 import GanttChartCalendar from "@/views/ganttchart/ganttchart.calendar.vue"; // Import your component
 import GanttChartDisplay from "@/views/ganttchart/ganttchart.display.vue"; // Import your component
@@ -20,21 +20,24 @@ import {
 import { AsideModal } from "@/components/utilities";
 import { AddProject, AddSchedule, AddKanboard } from "./ganttchart/components";
 import { ProjectFormTypes } from "@/types/projects.types";
-import { useAlert } from "@/components/utilities/Alert/useAlert";
+import { ToastService } from "@/components/utilities/Toast/useToast";
 
 const ganttChartStore = useGanttChartStore();
 const userStore = useUsersStore();
 const priorityStore = usePrioritiesStore();
 const statusStore = useStatusesStore();
 const projectStore = useProjectsStore()
-const alert = useAlert()
+
+const toast = inject<ToastService>('toast')!
 
 onMounted(() => {
   ganttChartStore.loadGanttCharts();
   userStore.setUsers();
   priorityStore.setPriorities();
   statusStore.setStatuses();
-  alert.success("This is a success message!", "Success Title", 3000);
+ if(ganttChartStore.getGanttCharts && userStore.getUsers && priorityStore.getPriorities && statusStore.getStatuses){
+  toast.success('Successfuly Load Required Data.', 'Load Success!')
+ }
 });
 
 const ganttCharts = computed(() => ganttChartStore.getGanttCharts);
@@ -55,6 +58,11 @@ const select_schedule = (ganttChart: GanttChart) => {
   selectedGanttChartId.value = ganttChart.id; // Set selected Gantt chart ID
   schedules_selected.value = ganttChart.schedules || [];
   gantt_chart_selected.value = ganttChart;
+  
+  toast.success('test', 'Successfully Executed!')
+  toast.warning('test', 'Successfully Executed!')
+  toast.error('test', 'Successfully Executed!')
+  toast.info('test', 'Successfully Executed!')
 };
 
 
@@ -114,16 +122,16 @@ const createSchedule = async (form: {
 };
 
 const createKanboard = async (payload: ProjectFormTypes) => {
-    try {
-        const result = await projectStore.setProjectStore(payload)
-        if(result) {
-          showAddKanboardModal.value = false
-        }
-    } catch (e) {
-        console.log(e);
-    } finally {
-        reloadSelectedGanttChart()
+  try {
+    const result = await projectStore.setProjectStore(payload)
+    if (result) {
+      showAddKanboardModal.value = false
     }
+  } catch (e) {
+    console.log(e);
+  } finally {
+    reloadSelectedGanttChart()
+  }
 };
 
 const updateSchedule = async (
@@ -162,24 +170,15 @@ const updateActualDates = async (id: number, data: { dates: string[] }) => {
 </script>
 
 <template>
-  <div
-    class="flex flex-col h-full w-full overflow-hidden rounded-lg shadow-md p-4 gap-4 text-xs relative"
-  >
+  <div class="flex flex-col h-full w-full overflow-hidden rounded-lg shadow-md p-4 gap-4 text-xs relative">
     <!-- Gantt Charts List -->
-    <div
-      class="h-40  flex items-center gap-5 p-4 rounded-lg shadow-inner overflow-x-auto"
-    >
-      <div
-        v-for="gantt_chart in ganttCharts"
-        :key="gantt_chart.id"
-        @click="select_schedule(gantt_chart || [])"
-        :class="[
-          'h-28 p-4 min-w-60 rounded-lg cursor-pointer border shadow-md transition-transform transform hover:scale-105 hover:shadow-lg',
-          gantt_chart.id === selectedGanttChartId
-            ? 'border-4 border-blue-500 bg-blue-100'
-            : 'border-gray-300 bg-white',
-        ]"
-      >
+    <div class="h-40  flex items-center gap-5 p-4 rounded-lg shadow-inner overflow-x-auto">
+      <div v-for="gantt_chart in ganttCharts" :key="gantt_chart.id" @click="select_schedule(gantt_chart || [])" :class="[
+        'h-28 p-4 min-w-60 rounded-lg cursor-pointer border shadow-md transition-transform transform hover:scale-105 hover:shadow-lg',
+        gantt_chart.id === selectedGanttChartId
+          ? 'border-4 border-blue-500 bg-blue-100'
+          : 'border-gray-300 bg-white',
+      ]">
         <h3 class="font-semibold text-lg text-gray-800 truncate">
           {{ gantt_chart.name }}
         </h3>
@@ -190,47 +189,34 @@ const updateActualDates = async (id: number, data: { dates: string[] }) => {
     </div>
 
     <!-- Content Area with Tabs -->
-    <div
-      class="flex-1 border rounded-lg p-5 bg-white shadow-md overflow-hidden"
-    >
+    <div class="flex-1 border rounded-lg p-5 bg-white shadow-md overflow-hidden">
       <div class="h-full overflow-hidden">
         <!-- Tabs for Switching -->
-        <div
-          class="flex flex-col md:flex-row gap-4 text-gray-700 bg-white shadow-lg"
-        >
-          <h4
-            @click="setActiveTab('schedules')"
-            class="font-semibold text-base cursor-pointer transition-colors duration-200 pb-2"
-            :class="{
+        <div class="flex flex-col md:flex-row gap-4 text-gray-700 bg-white shadow-lg">
+          <h4 @click="setActiveTab('schedules')"
+            class="font-semibold text-base cursor-pointer transition-colors duration-200 pb-2" :class="{
               'text-blue-500 border-b-2 border-blue-500':
                 activeTab === 'schedules',
               'text-gray-500 border-b-2 border-transparent':
                 activeTab !== 'schedules',
-            }"
-          >
+            }">
             Schedules
           </h4>
-          <h4
-            @click="setActiveTab('gantt')"
-            class="font-semibold text-base cursor-pointer transition-colors duration-200 pb-2"
-            :class="{
+          <h4 @click="setActiveTab('gantt')"
+            class="font-semibold text-base cursor-pointer transition-colors duration-200 pb-2" :class="{
               'text-blue-500 border-b-2 border-blue-500': activeTab === 'gantt',
               'text-gray-500 border-b-2 border-transparent':
                 activeTab !== 'gantt',
-            }"
-          >
+            }">
             Gantt Chart
           </h4>
-          <h4
-            @click="setActiveTab('calendar')"
-            class="font-semibold text-base cursor-pointer transition-colors duration-200 pb-2"
-            :class="{
+          <h4 @click="setActiveTab('calendar')"
+            class="font-semibold text-base cursor-pointer transition-colors duration-200 pb-2" :class="{
               'text-blue-500 border-b-2 border-blue-500':
                 activeTab === 'calendar',
               'text-gray-500 border-b-2 border-transparent':
                 activeTab !== 'calendar',
-            }"
-          >
+            }">
             Calendar
           </h4>
         </div>
@@ -238,25 +224,13 @@ const updateActualDates = async (id: number, data: { dates: string[] }) => {
           <!-- Conditional Rendering with Fade Transition -->
           <transition name="fade" mode="out-in">
             <div v-if="activeTab === 'schedules'" key="schedules">
-              <GanttChartSchedule
-                :update-plan-dates="updatePlanDates"
-                :update-schedule="updateSchedule"
-                :schedules="schedules"
-                :update-actual-dates="updateActualDates"
-              />
+              <GanttChartSchedule :update-plan-dates="updatePlanDates" :update-schedule="updateSchedule"
+                :schedules="schedules" :update-actual-dates="updateActualDates" />
             </div>
-            <div
-              v-else-if="activeTab === 'gantt'"
-              key="gantt"
-              class="flex-1 p-5"
-            >
+            <div v-else-if="activeTab === 'gantt'" key="gantt" class="flex-1 p-5">
               <GanttChartDisplay />
             </div>
-            <div
-              v-else-if="activeTab === 'calendar'"
-              key="calendar"
-              class="flex-1 p-5"
-            >
+            <div v-else-if="activeTab === 'calendar'" key="calendar" class="flex-1 p-5">
               <!-- Placeholder for Gantt Chart content -->
               <!-- <p class="text-center text-gray-500">Gantt chart will appear here.</p> -->
               <GanttChartCalendar :gantt-chart="gantt_chart" />
@@ -269,24 +243,14 @@ const updateActualDates = async (id: number, data: { dates: string[] }) => {
     <div class="fixed bottom-11 right-12 cursor-pointer group">
       <!-- Main Button -->
       <div
-        class="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 opacity-50 rounded-full transition-all duration-300 hover:opacity-100 hover:shadow-lg flex items-center justify-center shadow-blue-500/50 hover:scale-105 border-2 border-blue-300 p-4 relative group-hover:bg-opacity-100"
-      >
-        <div
-          class="flex group-hover:gap-2 group-hover:border-r-2 group-hover:px-2 group-hover:w-max w-0 duration-200"
-        >
-          <ReFolderAddFill
-            @click="showAddProjectModal = true"
-            class="text-white size-7 hover:text-yellow-300 duration-200"
-          />
-          <McCalendarAddLine
-            @click="showAddScheduleModal = true"
-            class="text-white size-7 hover:text-yellow-300 duration-200"
-          />
-          <AnOutlinedFundProjectionScreen
-            v-if="gantt_chart?.id"
-            @click="showAddKanboardModal = true"
-            class="text-white size-7 hover:text-yellow-300 duration-200"
-          />
+        class="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 opacity-50 rounded-full transition-all duration-300 hover:opacity-100 hover:shadow-lg flex items-center justify-center shadow-blue-500/50 hover:scale-105 border-2 border-blue-300 p-4 relative group-hover:bg-opacity-100">
+        <div class="flex group-hover:gap-2 group-hover:border-r-2 group-hover:px-2 group-hover:w-max w-0 duration-200">
+          <ReFolderAddFill @click="showAddProjectModal = true"
+            class="text-white size-7 hover:text-yellow-300 duration-200" />
+          <McCalendarAddLine @click="showAddScheduleModal = true"
+            class="text-white size-7 hover:text-yellow-300 duration-200" />
+          <AnOutlinedFundProjectionScreen v-if="gantt_chart?.id" @click="showAddKanboardModal = true"
+            class="text-white size-7 hover:text-yellow-300 duration-200" />
           <AnOutlinedFundProjectionScreen v-else class="text-gray-300 size-7 cursor-not-allowed" />
         </div>
         <div class="group-hover:px-2">
@@ -295,22 +259,13 @@ const updateActualDates = async (id: number, data: { dates: string[] }) => {
       </div>
     </div>
 
-    <AsideModal
-      :visible="showAddProjectModal"
-      @update:visible="showAddProjectModal = $event"
-    >
+    <AsideModal :visible="showAddProjectModal" @update:visible="showAddProjectModal = $event">
       <AddProject :create-gantt="createGantt" />
     </AsideModal>
-    <AsideModal
-      :visible="showAddScheduleModal"
-      @update:visible="showAddScheduleModal = $event"
-    >
+    <AsideModal :visible="showAddScheduleModal" @update:visible="showAddScheduleModal = $event">
       <AddSchedule :create-schedule="createSchedule" />
     </AsideModal>
-    <AsideModal
-      :visible="showAddKanboardModal"
-      @update:visible="showAddKanboardModal = $event"
-    >
+    <AsideModal :visible="showAddKanboardModal" @update:visible="showAddKanboardModal = $event">
       <AddKanboard :create-kanboard="createKanboard" />
     </AsideModal>
   </div>
@@ -326,7 +281,8 @@ const updateActualDates = async (id: number, data: { dates: string[] }) => {
 .fade-enter,
 .fade-leave-to
 
-/* .fade-leave-active in <2.1.8 */ {
+/* .fade-leave-active in <2.1.8 */
+  {
   opacity: 0;
   /* Fade out */
   transform: translateY(10px);

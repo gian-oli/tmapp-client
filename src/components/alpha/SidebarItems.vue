@@ -34,8 +34,8 @@ const updateTooltipPosition = () => {
             'text-gray-400 bg-gray-100'}`">
         <div class="flex items-center w-full" :class="expanded ? 'justify-start' : 'justify-center'">
             <span class="flex items-center justify-center relative" :class="`transition-all duration-300 
-                ${!expanded ? 'text-2xl font-bold w-full' : 'text-base'}
-                ${expanded ? 'mr-2' : ''}`" @mouseenter="updateTooltipPosition">
+                ${!expanded ? 'text-2xl font-bold w-full border-r-2 ' : 'text-base'}
+                ${expanded ? 'mr-2 ' : ''}`" @mouseenter="updateTooltipPosition">
                 <slot name="icon"></slot>
 
                 <div v-if="!expanded" ref="tooltipRef" class="fixed z-50 bg-white text-gray-800 text-sm px-3 py-1.5 rounded-xl shadow-2xl 

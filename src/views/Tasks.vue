@@ -152,7 +152,7 @@ const formatTimeSpent = (start_date: string, finished_at: string) => {
     <div class="bg-white flex h-full gap-2 shadow-md">
         <div class="min-w-80 max-w-80 space-y-4">
             <p class="font-extrabold bg-blue-100 p-3 text-blue-700 rounded-t rounded ">MY PROJECTS</p>
-            <div class="border p-2 rounded-lg space-y-6  h-[80vh]">
+            <div class="border p-4 rounded-lg space-y-3  h-[80vh]">
                 <p class="text-center font-bold">Project List</p>
                 <div v-for="project in myProjects" :key="project.id">
                     <ProjectList :viewProject="viewProject" :project="project" />
