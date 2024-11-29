@@ -3,15 +3,17 @@ import { Modal } from '@/components/utilities';
 import Button from '@/components/utilities/Button.vue';
 import Form from '@/components/utilities/Form.vue';
 import Input from '@/components/utilities/Input.vue';
+import { ToastService } from '@/components/utilities/Toast/useToast';
 import { useLoginStore, useRoleStore, useUsersStore } from '@/modules';
-import { Role } from '@/types';
+import { LoginResponseType, Role } from '@/types';
 import { computed, inject, onMounted, Ref, ref } from 'vue';
 import { useRouter } from 'vue-router';
-
 const loginStore = useLoginStore()
 const roleStore = useRoleStore()
 const userStore = useUsersStore()
 const router = useRouter() // Assuming you have a router setup
+
+const toast = inject<ToastService>('toast')
 
 const initialCredentials = {
     username: '',
@@ -46,24 +48,29 @@ const roles = computed(() => roles_inject.value.map((role) => ({
     value: role.id,
 })));
 
-const userLogin = () => {
+const userLogin = async () => {
     loadingState.value = true
     try {
-        loginStore.setLogin({ ...credentials.value }).then((res) => {
-            if (res?.token == undefined) {
-                loadingState.value = false;
-                return;
-            }
-            // Redirect to dashboard or home page
+        const result: LoginResponseType = await loginStore.setLogin({ ...credentials.value })
+        console.log(result)
+        if ('error' in result) {
+            toast?.warning(result.error.message, result.message);
+            loadingState.value = false;
+            return;
+        }
+        if (result.data.token) {
+            sessionStorage.setItem("access_token", result.data.token);
             router.push({ name: 'Dashboard' }).then(() => {
-
                 loadingState.value = false;
-            })
-        })
-    } catch (error) {
+                toast?.success('Welcome to TMAPP', result.message)
+            });
+        } else {
+            toast?.error('Login failed: No token received', 'Error');
+            loadingState.value = false;
+        }
+    } catch (error: any) {
         loadingState.value = false;
-        // Handle error here
-        console.error('Error logging in:', error);
+        toast?.error(error.message, 'Error')
     }
 }
 
@@ -76,8 +83,11 @@ const registerUser = async () => {
     loadingState.value = true
     try {
         await userStore.addUsers(form.value)
-    } catch (e) {
-        console.log(e)
+        toast?.success('Registration Successful!', 'Success')
+    } catch (e: any) {
+        console.log(e.response)
+        toast?.error(e.response.data.error.email[0], e.response.data.message)
+        return
     } finally {
         loadingState.value = false;
         registerModal.value = false
@@ -91,11 +101,11 @@ const validatePassword = (password: string): boolean => {
 
 const validateForm = (): boolean => {
     if (form.value.password !== form.value.password_confirmation) {
-        alert('Passwords do not match!');
+        toast?.warning('Passwords do not match!', 'Validation Error')
         return false;
     }
     if (!validatePassword(form.value.password)) {
-        alert('Password must contain at least one uppercase letter, one lowercase letter, one number, one special character, and be at least 8 characters long.');
+        toast?.warning('Alphanumeric Passwords Only', 'Validation Error')
         return false;
     }
     return true;
@@ -149,4 +159,4 @@ onMounted(() => {
             </Button>
         </Form>
     </Modal>
-</template>
+</template>1

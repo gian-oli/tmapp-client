@@ -59,6 +59,12 @@ provide('expanded', expanded)
           </template>
           <p class="inline-flex">User Management</p>
         </SidebarItems>
+        <SidebarItems route_name="GameRoom" class="flex items-center mb-2 p-2 rounded-md hover:bg-gray-300">
+          <template #icon>
+            <LaUserSecretSolid class="mr-2" />
+          </template>
+          <p class="inline-flex">GameRoom</p>
+        </SidebarItems>
       </Sidebar>
 
       <!-- Main content area -->

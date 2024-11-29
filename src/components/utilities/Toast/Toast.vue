@@ -59,7 +59,7 @@ const close = () => {
 
 // Toast class based on type
 const toastClasses = computed(() => {
-    const baseClasses = 'flex items-center bg-white rounded-md';
+    const baseClasses = 'flex items-center bg-white rounded-r-md rounded-l-full';
     switch (props.type) {
         case 'success':
             return `${baseClasses}`;

@@ -41,7 +41,7 @@ export class ToastService {
     // Validate toast manager
     if (!this.toastManager.value) {
       console.warn(
-        "Toast manager not initialized. Call setToastManager first."
+        "Toast manager not initialized. Call setToastManager first. e.g; onMounted()"
       );
       return;
     }

@@ -151,7 +151,7 @@ const formatTimeSpent = (start_date: string, finished_at: string) => {
 <template>
     <div class="bg-white flex h-full gap-2 shadow-md">
         <div class="min-w-80 max-w-80 space-y-4">
-            <p class="font-extrabold bg-blue-100 p-3 text-blue-700 rounded-t rounded ">MY PROJECTS</p>
+            <p class="font-extrabold bg-blue-100 p-3 text-blue-700 rounded-t rounded w-fit">My Projects</p>
             <div class="border p-4 rounded-lg space-y-3  h-[80vh]">
                 <p class="text-center font-bold">Project List</p>
                 <div v-for="project in myProjects" :key="project.id">
@@ -162,7 +162,7 @@ const formatTimeSpent = (start_date: string, finished_at: string) => {
 
         <div class="w-full overflow-y-auto"
             v-if="projectStore.getSingleProject.project_type == 'Testing'">
-            <div class="p-3 bg-blue-100 rounded-t text-blue-700 font-extrabold sticky top-0 z-20">{{
+            <div class="p-3 rounded-t text-blue-700 font-extrabold sticky top-0 z-20">{{
                 stateViewProject?.project_name }} -
                 {{
                     stateViewProject?.project_type }}</div>
@@ -249,7 +249,7 @@ const formatTimeSpent = (start_date: string, finished_at: string) => {
             </div>
         </div>
         <div v-else class="w-full space-y-4 overflow-y-scroll">
-            <div class="p-3 bg-blue-100 rounded-t text-blue-700 font-extrabold sticky top-0 z-20">{{
+            <div class="p-3 rounded-t text-blue-700 font-extrabold sticky top-0 z-20">{{
                 stateViewProject?.project_name }} -
                 {{
                     stateViewProject?.project_type }}</div>

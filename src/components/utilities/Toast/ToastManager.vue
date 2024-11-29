@@ -1,9 +1,9 @@
 <template>
-    <div class="fixed top-4 right-4 z-[1000] space-y-2">
+    <div class="fixed top-4 right-5 z-[1000] w-[300px] flex flex-col-reverse">
         <TransitionGroup 
             name="toast-stack" 
             tag="div" 
-            class="flex flex-col-reverse space-y-2"
+            class="space-y-2"
         >
             <Toast 
                 v-for="toast in displayedToasts" 
@@ -12,6 +12,7 @@
                 :title="toast.title"
                 :type="toast.type" 
                 :duration="toast.duration" 
+                class="block" 
                 @close="removeToast(toast.id)" 
             />
         </TransitionGroup>
@@ -107,6 +108,7 @@ defineExpose({
 })
 </script>
 
+
 <style scoped>
 .toast-stack-enter-active,
 .toast-stack-leave-active {
@@ -121,5 +123,10 @@ defineExpose({
 
 .toast-stack-move {
     transition: transform 0.3s ease-in-out;
+}
+
+/* Ensure gap between toasts */
+.toast-stack-move {
+    margin-bottom: 0.5rem; /* equivalent to space-y-2 */
 }
 </style>

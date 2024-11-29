@@ -3,6 +3,7 @@ import { Button, Form, Input } from '@/components/utilities';
 import { MdAddChart, ReFolderAddFill } from '@kalimahapps/vue-icons';
 import { addMonths, format } from 'date-fns';
 import { ref } from 'vue';
+import useAlert from '@/components/utilities/Alert/alertPlugin';
 
 const props = defineProps<{
     createGantt: (form: {
@@ -24,8 +25,17 @@ const form = ref<{
 }>(initial_form.value)
 
 
-const submitForm = () => {
-    props.createGantt(form.value)
+const submitForm = async () => {
+    const result = await useAlert.show('info', {
+        message: 'Are you sure you want to add new Project?',
+        title: 'Please confirm'
+    })
+
+    if (result) {
+        props.createGantt(form.value)
+    } else {
+        console.log('cancelled')
+    }
 }
 </script>
 <template>

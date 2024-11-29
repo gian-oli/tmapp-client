@@ -7,7 +7,7 @@ import axios from "axios";
 import VCalendar from "v-calendar";
 import "v-calendar/dist/style.css";
 import { toastPlugin } from "@/plugins/toastPlugin";
-import { alertPlugin } from "@/plugins/alertPlugin";
+import useAlert from "@/components/utilities/Alert/alertPlugin";
 
 axios.defaults.baseURL = "http://localhost/port-projects/tm/server/public/api";
 // "https://tmapp-server.railway.internal/public/api";
@@ -19,7 +19,8 @@ app.use(toastPlugin, {
   defaultDuration: 2000,
   maxToasts: 5
 })
-app.use(alertPlugin)
+
+app.use(useAlert)
 app.use(VCalendar);
 app.use(createPinia());
 app.use(router);

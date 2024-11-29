@@ -16,7 +16,6 @@ import axios from "axios";
 import { HeOutlineStop } from "@kalimahapps/vue-icons";
 import ToastManager from "./components/utilities/Toast/ToastManager.vue";
 import { useToast } from '@/components/utilities/Toast/useToast'
-import Alert  from '@/components/utilities/Alert/Alert.vue'
 
 const toastManagerRef = ref(null)
 
@@ -146,5 +145,4 @@ onMounted(() => {
   </div>
   <router-view></router-view>
   <ToastManager ref="toastManagerRef" />
-  <Alert />
 </template>

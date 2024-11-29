@@ -4,7 +4,10 @@ export interface LoginForm {
 }
 
 export interface LoginResponseType {
-  token: string | undefined;
+  token?: string;
+  error?: any;
+  message?: any,
+  data?: any
 }
 
 export interface Profile {

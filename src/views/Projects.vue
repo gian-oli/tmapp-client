@@ -2,12 +2,13 @@
 // import { format } from 'date-fns';
 import { useRoute } from 'vue-router';
 // import { AnOutlinedPlusSquare } from '@kalimahapps/vue-icons';
-import { onMounted, provide, ref, watch } from 'vue';
+import { inject, onMounted, provide, ref, watch } from 'vue';
 
 import { Project } from '@/types';
 import { ProjectDetails } from '@/components/projects';
 // import { Button, Modal } from '@/components/utilities';
 import { useUsersStore, usePrioritiesStore, useStatusesStore, useProjectsStore } from '@/modules';
+import { ToastService } from '@/components/utilities/Toast/useToast';
 
 const projectStore = useProjectsStore();
 const userStore = useUsersStore();
@@ -68,19 +69,24 @@ watch(route, () => {
 
 provide('stateViewProject', stateViewProject);
 
+const toast = inject<ToastService>('toast')
+
 /** Initialized page */
 onMounted(() => {
   projectStore.setProjects();
   userStore.setUsers();
   priorityStore.setPriorities();
   statusStore.setStatuses();
+  if(projectStore.getProjects && userStore.getUsers && priorityStore.getPriorities && statusStore.getStatuses){
+    toast?.success('Successfully load all required data.', 'Success', 3000)
+  }
 });
 </script>
 
 <template>
     <!-- Header -->
     <div
-      class="flex items-center justify-between mb-4 p-3 bg-blue-100 text-blue-700 font-semibold rounded-lg shadow-sm">
+      class="flex items-center justify-between mb-4 p-3 bg-blue-100 text-blue-700 font-semibold rounded-lg shadow-sm w-fit">
       <span>Projects Overview</span>
     </div>
 
@@ -88,7 +94,7 @@ onMounted(() => {
     <div class="flex gap-6 h-full">
       <!-- Project List -->
       <div class="flex-shrink-0 w-80 h-[80vh] overflow-y-auto bg-white border border-gray-200 p-4 rounded-lg shadow-sm">
-        <h3 class="font-semibold text-gray-600 text-center mb-3">Project List</h3>
+        <h3 class="font-semibold text-gray-600 text-center mb-3 w-">Project List</h3>
         <div v-if="projectStore.getProjects.length > 0">
           <div v-for="project in projectStore.getProjects" :key="project.id" :class="`p-3 my-1 cursor-pointer rounded-lg transition-colors duration-200 ${stateViewProject?.id === project.id ? 'bg-blue-100 border-l-4 border-blue-300' : 'hover:bg-blue-50'
             }`" @click="viewProject(project)">
