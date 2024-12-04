@@ -19,12 +19,12 @@ export interface Task {
   title: string;
   description: string;
   due_date: string;
-  finished_at: string | null;
+  finished_at: Date | null;
   assigned_by: string;
   user_id: number | null;
   user: User;
   color_name: string | null;
-  start_date: string | null;
+  start_date: Date | null;
   priority_id: number;
   priorities: Priority,
   column_id: number;

@@ -165,6 +165,16 @@ const updateActualDates = async (id: number, data: { dates: string[] }) => {
   }
 };
 
+const deleteSchedule = async (id: number) => {
+  try {
+    await ganttChartStore.deleteSchedule(id)
+  } catch (e) {
+    console.log(e)
+  } finally {
+    reloadSelectedGanttChart()
+  }
+}
+
 const averagePercentCompletedPerGanttChart = computed(() => {
   if (!ganttCharts.value || ganttCharts.value.length === 0) {
     return []; // Return an empty array if there are no Gantt charts
@@ -175,7 +185,8 @@ const averagePercentCompletedPerGanttChart = computed(() => {
     const validSchedules = schedules.filter(schedule =>
       schedule.percent_completed !== null && schedule.percent_completed !== undefined
     );
-
+    
+    // console.log(validSchedules)
     if (validSchedules.length === 0) {
       return {
         ganttChartId: ganttChart.id,
@@ -188,8 +199,7 @@ const averagePercentCompletedPerGanttChart = computed(() => {
       return sum + percent; // Add the parsed value to the sum
     }, 0);
 
-    const averagePercent = totalPercent / validSchedules.length;
-
+    const averagePercent = totalPercent / schedules.length;
     return {
       ganttChartId: ganttChart.id,
       averagePercent: averagePercent // Calculate average
@@ -279,9 +289,9 @@ const getCurrentOngoingSchedule = (schedules: Schedule[]) => {
           <transition name="fade" mode="out-in">
             <div v-if="activeTab === 'schedules'" key="schedules">
               <GanttChartSchedule :update-plan-dates="updatePlanDates" :update-schedule="updateSchedule"
-                :schedules="schedules" :update-actual-dates="updateActualDates" />
+                :schedules="schedules" :update-actual-dates="updateActualDates" :delete-schedule="deleteSchedule" />
             </div>
-            <div v-else-if="activeTab === 'gantt'" key="gantt" class="flex-1 p-5">
+            <div v-else-if="activeTab === 'gantt'" key="gantt" class="flex-1 py-4 px-1">
               <GanttChartDisplay :ganttChart="gantt_chart" />
             </div>
             <div v-else-if="activeTab === 'calendar'" key="calendar" class="flex-1 p-5">
@@ -329,42 +339,30 @@ const getCurrentOngoingSchedule = (schedules: Schedule[]) => {
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease, transform 0.3s ease;
-  /* Animation duration and easing */
 }
 
 .fade-enter,
-.fade-leave-to
-
-/* .fade-leave-active in <2.1.8 */
-  {
+.fade-leave-to {
   opacity: 0;
-  /* Fade out */
   transform: translateY(10px);
-  /* Slightly move down during the transition */
 }
 
-/* Gantt Chart Cards Hover Effect */
 .h-40 {
   overflow-y: auto;
-  /* Ensure vertical scrolling if content overflows */
 }
 
 .status-select {
   background-color: #f9fafb;
-  /* Lighter background */
   padding: 8px;
   border-radius: 0.375rem;
-  /* Rounded corners */
   border: 1px solid #d1d5db;
   transition: box-shadow 0.2s ease-in-out;
 }
 
 .status-select:focus {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-  /* Blue outline on focus */
 }
 
-/* Tab Styling */
 .text-blue-500 {
   color: #3b82f6;
 }
@@ -386,7 +384,6 @@ const getCurrentOngoingSchedule = (schedules: Schedule[]) => {
     0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-/* New gradient background */
 .bg-gradient-to-b {
   background: linear-gradient(to bottom, #ebf8ff, #ffffff);
 }

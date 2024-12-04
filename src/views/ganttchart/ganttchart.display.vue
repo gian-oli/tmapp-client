@@ -141,6 +141,8 @@ const getStatusColor = (status: ScheduleStatus): string => {
     }
 }
 
+
+
 const isValidStatus = (status: string): status is ScheduleStatus => {
     return ['Pending', 'Ongoing', 'On-Schedule', 'Delayed'].includes(status);
 };
@@ -148,60 +150,65 @@ const isValidStatus = (status: string): status is ScheduleStatus => {
 
 <template>
     <div class="w-full overflow-x-auto h-[47vh]">
-        <table class="w-full border-collapse">
+        <table class="w-full border-collapse ">
             <thead>
                 <tr>
-                    <th class="border p-2 sticky left-0 bg-white z-10">Year</th>
+                    <th class="border sticky left-0 bg-gray-300 z-10">Year</th>
                     <th v-for="(months, year) in dateGroups" :key="year"
                         :colspan="Object.values(months).reduce((sum, month) => sum + month.length, 0)"
-                        class="border p-2 text-center">
-                        {{ year }}
+                        class="border text-center bg-blue-50">
+                        <p class="border border-dashed p-1">{{ year }}</p>
                     </th>
                 </tr>
                 <tr>
-                    <th class="border p-2 sticky left-0 bg-white z-10">Month</th>
+                    <th class="border sticky left-0 bg-gray-300 z-10">Month</th>
                     <template v-for="(months, year) in dateGroups" :key="year">
                         <th v-for="(monthDates, month) in months" :key="month" :colspan="monthDates.length"
-                            class="border p-2 text-center">
+                            class="border text-center bg-white border-dashed border-gray-300 p-1">
                             {{ format(new Date(parseInt(year), parseInt(month) - 1), 'MMMM') }}
                         </th>
                     </template>
                 </tr>
                 <tr>
-                    <th class="border p-2 sticky left-0 bg-white z-10"></th>
+                    <th class="border-t border-x sticky left-0 bg-gray-300 z-10">Days</th>
                     <td v-for="date in dateColumns" :key="date.fullDate" class="border text-center text-xs">
-                        <p class="w-10 text-[10px]">{{ date.displayDate }}</p>
+                        <p class="w-10 text-[10px] border border-dashed">{{ date.displayDate }}</p>
                     </td>
                 </tr>
                 <tr>
-                    <th class="border p-2 sticky left-0 bg-white z-10"></th>
+                    <th class="border-b border-x sticky left-0 bg-blue-300 z-10">Schedule Details</th>
                     <td v-for="date in dateColumns" :key="date.fullDate" class="border text-center text-xs">
-                        <p class="w-10 text-[10px]">{{ format(parseISO(date.fullDate), 'EEE').toUpperCase() }}</p>
+                        <p class="w-10 text-[10px] border border-dashed">{{ format(parseISO(date.fullDate),
+                            'EEE').toUpperCase() }}</p>
                     </td>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="schedule in processedSchedules" :key="schedule.id" class="">
-                    <td class="border p-2 sticky left-0 bg-white z-10 flex items-center justify-between text-[12px]">
+                    <td
+                        class="border border-white p-2 sticky left-0 bg-blue-100 z-10 flex items-center justify-between text-[12px]">
                         <p class="w-max">{{ schedule.name }}</p>
                         <div class="ml-2 flex">
                             <span v-for="user in schedule.users" :key="user.id"
                                 class=" bg-blue-100 rounded px-2 mr-1 text-[10px] font-bold">
                                 {{ user.username }}
                             </span>
-                            <span class="w-10 rounded text-center font-bold text-white text-[10px]" :class="schedule.statusColor">
-                                {{schedule.percent_completed ??= '0'}}%
+                            <span class="w-10 rounded text-center font-bold text-white text-[10px]"
+                                :class="schedule.statusColor">
+                                {{ schedule.percent_completed ??= '0' }}%
                             </span>
                         </div>
                     </td>
-                    <td :colspan="dateColumns.length" class="relative border border-dotted border-gray-300" >
+                    <td :colspan="dateColumns.length" class="relative border border-dotted border-white bg-blue-50">
                         <div class="absolute inset-0">
                             <!-- Plan Bar -->
-                            <div v-if="schedule.planPosition" class="absolute h-4 opacity-50 rounded border border-dashed border-blue-600 bg-blue-200" :style="{
-                                left: `${schedule.planPosition.startPercentage}%`,
-                                width: `${schedule.planPosition.widthPercentage}%`,
-                            }">
-                            <p class="text-center">PLAN</p>
+                            <div v-if="schedule.planPosition"
+                                class="absolute h-4 opacity-60 rounded border border-dashed border-blue-600 bg-blue-200"
+                                :style="{
+                                    left: `${schedule.planPosition.startPercentage}%`,
+                                    width: `${schedule.planPosition.widthPercentage}%`,
+                                }">
+                                <p class="text-center text-blue-600 font-bold">PLAN</p>
                             </div>
 
                             <!-- Actual Bar -->

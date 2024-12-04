@@ -68,7 +68,7 @@ provide('expanded', expanded)
       </Sidebar>
 
       <!-- Main content area -->
-      <div class="flex-1 h-full overflow-hidden p-5 text-sm rounded-lg shadow-md">
+      <div class="flex-1 h-screen overflow-hidden p-5 text-sm rounded-lg shadow-md">
         <router-view />
       </div>
     </div>

@@ -121,14 +121,14 @@ export const useGanttChartStore = defineStore({
           `actual-date/${id}`,
           {
             signal: controller.signal,
-          },
+          }
         );
         return result.data.data;
       });
     },
     async updateSchedule(
       id: number,
-      data: { status?: string, percent_completed?: number }
+      data: { status?: string; percent_completed?: number }
     ): Promise<Schedule> {
       return apiCall(async () => {
         const result = await axios.put<ApiResponse<Schedule>>(
@@ -140,7 +140,7 @@ export const useGanttChartStore = defineStore({
     },
     async updatePlanDates(
       id: number,
-      data: { dates: string[]}
+      data: { dates: string[] }
     ): Promise<PlanDates[]> {
       return apiCall(async () => {
         const result = await axios.put<ApiResponse<PlanDates[]>>(
@@ -152,7 +152,7 @@ export const useGanttChartStore = defineStore({
     },
     async updateActualDates(
       id: number,
-      data: { dates: string[]}
+      data: { dates: string[] }
     ): Promise<ActualDates[]> {
       return apiCall(async () => {
         const result = await axios.put<ApiResponse<ActualDates[]>>(
@@ -161,7 +161,18 @@ export const useGanttChartStore = defineStore({
         );
         return result.data.data;
       });
-    }
+    },
+    async deleteSchedule(id: number): Promise<Schedule> {
+      return apiCall(async (controller) => {
+        const result = await axios.delete<ApiResponse<Schedule>>(
+          `schedule/${id}`,
+          {
+            signal: controller.signal,
+          }
+        );
+        return result.data.data;
+      });
+    },
   },
   getters: {
     getGanttCharts: (state) => state.ganttChart,

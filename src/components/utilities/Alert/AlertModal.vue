@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, onBeforeUnmount, onMounted } from 'vue';
 
 const props = defineProps<{
     title: string;
@@ -99,11 +99,31 @@ const confirmButtonClass = computed(() => {
 // Methods for handling button clicks
 const confirm = () => {
     emit('confirm');
+    cancel()
 };
 
 const cancel = () => {
     emit('cancel');
 };
+
+const handleKeydown = (event: KeyboardEvent) => {
+    event.preventDefault()
+    if (event.key === 'Escape') {
+        cancel(); // Close the alert
+    } else if (event.key === 'Enter') {
+        confirm()
+    }
+};
+
+
+// Setup event listener on mount and cleanup on unmount
+onMounted(() => {
+    window.addEventListener('keydown', handleKeydown);
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener('keydown', handleKeydown);
+});
 
 // Set the icon based on the type
 const icon = computed(() => iconMap[props.type]); 

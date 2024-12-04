@@ -2,8 +2,9 @@
 import { Schedule } from '@/types';
 import { useDebounceFn } from '@vueuse/core';
 import { eachDayOfInterval, format, isAfter, parseISO } from 'date-fns';
-import { computed, ref, watch } from 'vue';
+import { computed, InputHTMLAttributes, ref, watch } from 'vue';
 import draggable from 'vuedraggable';
+import useAlert from '@/components/utilities/Alert/alertPlugin';
 
 const props = defineProps<{
     schedules: Schedule[];
@@ -12,7 +13,8 @@ const props = defineProps<{
         data: { status?: string, percent_completed?: number }
     ) => void,
     updatePlanDates: (id: number, data: { dates: string[] }) => void,
-    updateActualDates: (id: number, data: { dates: string[] }) => void
+    updateActualDates: (id: number, data: { dates: string[] }) => void,
+    deleteSchedule: (id: number) => void
 }>();
 
 const localSchedules = ref<Schedule[]>([...props.schedules]);
@@ -153,12 +155,42 @@ const onDateRangePlanUpdate = (scheduleId: number, newRange: [Date, Date]) => {
         end
     }).map(date => format(date, 'yyyy-MM-dd'));
     try {
-        props.updatePlanDates(scheduleId, { dates: [...allDates] }); 
+        console.log(allDates)
+        props.updatePlanDates(scheduleId, { dates: [...allDates] });
     } catch (e) {
         console.log(e)
     }
-    
 };
+
+const onInputChangePlanUpdate = async (event: Event, id: number, dateType: boolean, planOrUpdate: boolean) => {
+    const target = event.target as HTMLInputElement;
+    /*
+    * From Date input = true
+    * To Date input = false
+    */
+    const start = dateType ? new Date(target.value) : new Date(format(planDateRange.value.find(item => item.schedule_id === id)?.range.start!, 'yyyy-MM-dd'))
+    const end = dateType ? new Date(format(planDateRange.value.find(item => item.schedule_id === id)?.range.end!, 'yyyy-MM-dd')) : new Date(target.value)
+
+    const allDates = eachDayOfInterval({
+        start,
+        end
+    }).map(date => format(date, 'yyyy-MM-dd'));
+
+    try {
+        /*  
+        *planOrUpdate: true = plan
+        *planOrUpdate: false = actual
+        */
+        if (planOrUpdate) {
+            props.updatePlanDates(id, { dates: [...allDates] });
+        } else {
+            props.updateActualDates(id, { dates: [...allDates] })
+        }
+    } catch (e) {
+        console.log(e)
+    }
+}
+
 const onDateRangeActualUpdate = (scheduleId: number, newRange: [Date, Date]) => {
     const [start, end] = newRange;
     const allDates = eachDayOfInterval({
@@ -166,12 +198,23 @@ const onDateRangeActualUpdate = (scheduleId: number, newRange: [Date, Date]) => 
         end
     }).map(date => format(date, 'yyyy-MM-dd'));
     try {
-        props.updateActualDates(scheduleId, { dates: [...allDates] }); 
+        console.log(allDates)
+        props.updateActualDates(scheduleId, { dates: [...allDates] });
     } catch (e) {
         console.log(e)
     }
-    
 };
+
+const deleteScheduleConfirmation = async (id: number) => {
+    const confirmation = await useAlert.show('warning', {
+        message: 'This action will delete all connected records to this schedule.',
+        title: 'Are you sure you want to delete schedule?'
+    })
+
+    if (confirmation) {
+        props.deleteSchedule(id)
+    }
+}
 
 watch(selectedSchedule, (newSchedule) => {
     if (newSchedule) {
@@ -181,21 +224,30 @@ watch(selectedSchedule, (newSchedule) => {
             : 0;
     }
 });
+
 </script>
 
 <template>
     <div class="flex flex-col h-full w-full bg-white rounded-lg shadow-md p-4 gap-4 text-xs">
-        <img class="absolute size-60 bottom-0 right-60" src="/assets/images/schedule-img.png" />
         <div class="flex gap-4">
-        <div>
-        </div>
-            <div class="w-2/3 h-full relative flex flex-col overflow-y-auto">
+
+            <div class="w-2/3 h-[50vh] relative flex flex-col overflow-y-auto">
+                <span v-show="localSchedules.length == 0" class="w-full flex flex-col items-center justify-center">
+                    <img class="size-80 self-center " src="/assets/images/schedule-img.png" />
+                    <p
+                        class="select-project font-extrabold text-lg tracking-widest uppercase text-white bg-gray-600 p-4 rounded-lg shadow-md mb-4 text-center">
+                        Select A Project
+                    </p>
+                </span>
                 <draggable v-model="localSchedules" group="schedules" @start="onDragStart" @end="onDragEnd"
                     :animation="200" :clone="cloneItem" item-key="id">
                     <template #item="{ element }">
                         <div tabindex="0" :id="`sched_${element.id}`"
                             class="draggable-item group relative bg-gradient-to-r from-white to-gray-50 border border-gray-200 rounded-lg p-6 mb-4 cursor-pointer shadow hover:shadow-lg transition-shadow duration-300 ease-in-out focus:ring-2 focus:ring-blue-400 w-full"
                             @click="selectSchedule(element)">
+                            <!-- Delete Schedule Button -->
+                            <button @click="deleteScheduleConfirmation(element.id)"
+                                class="absolute top-0 right-0 px-4 py-1 bg-red-300 text-white rounded-tr rounded-bl text-sm hover:bg-red-500">&times</button>
                             <div class="flex justify-between items-start space-x-6">
                                 <div class="space-y-4 flex-1">
                                     <span class="font-bold text-xl text-blue-800 truncate">{{ element.name }}</span>
@@ -222,7 +274,7 @@ watch(selectedSchedule, (newSchedule) => {
 
                                 <div
                                     class="flex items-center space-x-4 bg-gray-50 border border-gray-200 rounded-lg p-3 shadow-sm">
-                                    <div class="text-center">
+                                    <div class="text-center flex flex-col gap-1">
                                         <h2
                                             class="text-sm font-semibold bg-orange-100 text-orange-700 py-1 px-3 rounded-md">
                                             PLAN</h2>
@@ -230,8 +282,22 @@ watch(selectedSchedule, (newSchedule) => {
                                             :model-value="planDateRange.find(item => item.schedule_id === element.id)?.range"
                                             is-range
                                             @update:model-value="(newRange: any) => onDateRangePlanUpdate(element.id, [newRange.start, newRange.end])" />
+                                        <div class="space-y-1   p-2  rounded">
+                                            <span class="flex gap-2 items-center w-full text-sm">
+                                                <b class="w-20 text-start">From:</b>
+                                                <input class="py-1 px-2 border flex-1 font-extrabold" type="date"
+                                                    :value="format(planDateRange.find(item => item.schedule_id === element.id)?.range.start! ?? new Date(), 'yyyy-MM-dd')"
+                                                    @input="onInputChangePlanUpdate($event, element.id, true, true)" />
+                                            </span>
+                                            <span class="flex gap-2 items-center w-full text-sm">
+                                                <b class="w-20 text-start">To:</b>
+                                                <input class="py-1 px-2 border flex-1 font-extrabold" type="date"
+                                                    :value="format(planDateRange.find(item => item.schedule_id === element.id)?.range.end! ?? new Date(), 'yyyy-MM-dd')"
+                                                    @input="onInputChangePlanUpdate($event, element.id, false, true)" />
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div class="text-center">
+                                    <div class="text-center flex flex-col gap-1">
                                         <h2
                                             class="text-sm font-semibold bg-green-100 text-green-700 py-1 px-3 rounded-md">
                                             ACTUAL</h2>
@@ -239,10 +305,24 @@ watch(selectedSchedule, (newSchedule) => {
                                             :model-value="actualDateRange.find(item => item.schedule_id === element.id)?.range"
                                             is-range
                                             @update:model-value="(newRange: any) => onDateRangeActualUpdate(element.id, [newRange.start, newRange.end])" />
+                                        <div class="space-y-1   p-2  rounded">
+                                            <span class="flex gap-2 items-center w-full text-sm">
+                                                <b class="w-20 text-start">From:</b>
+                                                <input class="py-1 px-2 border flex-1 font-extrabold" type="date"
+                                                    :value="format(actualDateRange.find(item => item.schedule_id === element.id)?.range.start! ?? new Date(), 'yyyy-MM-dd')"
+                                                    @input="onInputChangePlanUpdate($event, element.id, true, false)" />
+                                            </span>
+                                            <span class="flex gap-2 items-center w-full text-sm">
+                                                <b class="w-20 text-start">To:</b>
+                                                <input class="py-1 px-2 border flex-1 font-extrabold" type="date"
+                                                    :value="format(actualDateRange.find(item => item.schedule_id === element.id)?.range.end! ?? new Date(), 'yyyy-MM-dd')"
+                                                    @input="onInputChangePlanUpdate($event, element.id, false, false)" />
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="space-y-4 text-right">
+                                <div class="space-y-4 text-right mt-5">
                                     <span
                                         class="text-xs bg-blue-100 text-blue-600 px-3 py-1 rounded-full font-semibold uppercase">
                                         {{ element.priority || 'Low Priority' }}
@@ -250,7 +330,7 @@ watch(selectedSchedule, (newSchedule) => {
                                     <div class="text-sm text-gray-600">
                                         Completion:
                                         <strong class="text-blue-600">
-                                            {{ element.percent_completed || 'Not started' }}%
+                                            {{ element.percent_completed || '0' }}%
                                         </strong>
                                     </div>
                                 </div>
@@ -363,6 +443,7 @@ watch(selectedSchedule, (newSchedule) => {
 /* Smooth transitions without hover scale effect */
 .draggable-item {
     transition: opacity 0.2s;
+    position: relative;
 }
 
 /* Change border color and add shadow when dragging */

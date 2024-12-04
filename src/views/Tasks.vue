@@ -160,8 +160,7 @@ const formatTimeSpent = (start_date: string, finished_at: string) => {
             </div>
         </div>
 
-        <div class="w-full overflow-y-auto"
-            v-if="projectStore.getSingleProject.project_type == 'Testing'">
+        <div class="w-full overflow-y-auto" v-if="projectStore.getSingleProject.project_type == 'Testing'">
             <div class="p-3 rounded-t text-blue-700 font-extrabold sticky top-0 z-20">{{
                 stateViewProject?.project_name }} -
                 {{
@@ -230,7 +229,12 @@ const formatTimeSpent = (start_date: string, finished_at: string) => {
                                 <span class="flex justify-between items-center">
                                     <p>Time Spent:</p>
                                     <p>{{ task.start_date && task.finished_at ?
-                                        formatTimeSpent(task.start_date, task.finished_at) : '-' }}</p>
+                                        formatTimeSpent(
+                                            typeof task.start_date === 'string' ? task.start_date : new
+                                                Date(task.start_date).toISOString(),
+                                            typeof task.finished_at === 'string' ? task.finished_at : new
+                                                Date(task.finished_at).toISOString()
+                                        ) : '-' }}</p>
                                 </span>
                                 <span class="w-full flex justify-end">
                                     <Button class="flex items-center gap-1">
@@ -339,7 +343,12 @@ const formatTimeSpent = (start_date: string, finished_at: string) => {
                                             <span class="flex justify-between items-center">
                                                 <p>Time Spent:</p>
                                                 <p>{{ task.start_date && task.finished_at ?
-                                                    formatTimeSpent(task.start_date, task.finished_at) : '-' }}</p>
+                                                    formatTimeSpent(
+                                                        typeof task.start_date === 'string' ? task.start_date : new
+                                                            Date(task.start_date).toISOString(),
+                                                    typeof task.finished_at === 'string' ? task.finished_at : new
+                                                    Date(task.finished_at).toISOString()
+                                                    ) : '-' }}</p>
                                             </span>
                                             <span class="w-full flex justify-end">
                                                 <Button @click="openViewTask(task)" class="flex items-center gap-1">
